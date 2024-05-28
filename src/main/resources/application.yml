@@ -21,3 +21,15 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         database-platform: org.hibernate.dialect.MySQLDialect
         default_batch_fetch_size: 100
+oauth:
+  kakao:
+    baseUrl: https://kauth.kakao.com
+    clientId: ${KAKAO_CLIENT_ID}
+    clientSecret: ${KAKAO_CLIENT_SECRET}
+    redirectUrl: ${KAKAO_REDIRECT_URL}
+    appId: ${KAKAO_APP_ID}
+    adminKey: KAKAO_ADMIN_KEY
+    webClientId: KAKAO_WEB_CLIENT_ID
+    webAppId: KAKAO_WEB_APP_ID
+token:
+  secret: ${SECRET_KEY}
