@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Schema(description = "인가 코드")
-public class KakaoCodeRequest {
+public class OAuthCodeReqeust {
     private String code;
 }
 

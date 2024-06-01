@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import project.atch.domain.user.OAuthProvider;
-import project.atch.global.oidc.dto.KakaoCodeRequest;
+import project.atch.global.oidc.dto.OAuthCodeReqeust;
 import project.atch.global.oidc.service.OAuthService;
 
 @RestController
@@ -19,7 +19,7 @@ public class OAuthController {
     @PostMapping("/login")
     public ResponseEntity oauthUserCodeLogin(
             @RequestParam(name = "provider") OAuthProvider provider,
-            @RequestBody KakaoCodeRequest request) {
+            @RequestBody OAuthCodeReqeust request) {
 
         return oAuthService.socialLogin(provider, request.getCode());
 

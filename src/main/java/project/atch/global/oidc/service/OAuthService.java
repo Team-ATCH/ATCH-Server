@@ -33,7 +33,7 @@ public class OAuthService {
     private final JwtTokenProvider tokenProvider;
 
     public ResponseEntity socialLogin(OAuthProvider provider, String request) {
-        KakaoTokenResponse token = getKakaoOauthToken(provider, request);
+        KakaoTokenResponse token = getKakaoOauthToken(provider, request); // TODO 애플의 IdToken 받는 로직 추후 구현
         OIDCDecodePayload oidcDecodePayload = getOIDCDecodePayload(provider, token.getIdToken());
 
         Optional<User> existing = userRepository.findByEmail(oidcDecodePayload.getEmail());
@@ -44,7 +44,6 @@ public class OAuthService {
             String accessToken = tokenProvider.createAccessToken(user.getEmail(), user.getRole().toString());
             SocialLoginResponse socialLoginResponse = toSocialLoginResponse(accessToken);
             return new ResponseEntity<>(socialLoginResponse, HttpStatus.OK);
-
         }
 
         User user = User.fromKakao(oidcDecodePayload.getNickname(), oidcDecodePayload.getEmail());
