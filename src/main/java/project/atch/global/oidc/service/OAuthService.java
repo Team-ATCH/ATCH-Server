@@ -11,14 +11,14 @@ import project.atch.domain.user.UserRepository;
 import project.atch.global.exception.CustomException;
 import project.atch.global.exception.ErrorCode;
 import project.atch.global.jwt.JwtTokenProvider;
-import project.atch.global.oidc.config.KakaoOAuthProperties;
-import project.atch.global.oidc.dto.KakaoTokenResponse;
-import project.atch.global.oidc.dto.OIDCDecodePayload;
-import project.atch.global.oidc.dto.OIDCPublicKeysResponse;
-import project.atch.global.oidc.dto.SocialLoginResponse;
+import project.atch.global.oidc.dto.*;
+import project.atch.global.oidc.feign.AppleOauthClient;
 import project.atch.global.oidc.feign.KakaoOauthClient;
 
 import java.util.Optional;
+
+import static project.atch.domain.user.OAuthProvider.APPLE;
+import static project.atch.domain.user.OAuthProvider.KAKAO;
 
 @RequiredArgsConstructor
 @Transactional
@@ -26,13 +26,14 @@ import java.util.Optional;
 public class OAuthService {
 
     private final KakaoOauthClient kakaoOauthClient;
+    private final AppleOauthClient appleOauthClient;
     private final OauthOIDCService oauthOIDCService;
-    private final KakaoOAuthProperties kakaoOAuthProperties;
+    private final OauthProperties oauthProperties;
     private final UserRepository userRepository;
     private final JwtTokenProvider tokenProvider;
 
     public ResponseEntity socialLogin(OAuthProvider provider, String request) {
-        KakaoTokenResponse token = getKakaoOauthToken(request);
+        KakaoTokenResponse token = getKakaoOauthToken(provider, request);
         OIDCDecodePayload oidcDecodePayload = getOIDCDecodePayload(provider, token.getIdToken());
 
         Optional<User> existing = userRepository.findByEmail(oidcDecodePayload.getEmail());
@@ -54,28 +55,35 @@ public class OAuthService {
     }
 
 
-    private KakaoTokenResponse getKakaoOauthToken(String code) {
+    private KakaoTokenResponse getKakaoOauthToken(OAuthProvider provider, String code) {
         try {
             return kakaoOauthClient.kakaoAuth(
-                    kakaoOAuthProperties.getClientId(),
-                    kakaoOAuthProperties.getRedirectUrl(),
+                    oauthProperties.getClientId(provider),
+                    oauthProperties.getRedirectUrl(provider),
                     code,
-                    kakaoOAuthProperties.getClientSecret());
+                    oauthProperties.getClientSecret(provider));
         } catch (Exception ex) {
             throw new CustomException(ErrorCode.REQUEST_VALIDATION_EXCEPTION);
         }
     }
 
+    
+
     private OIDCDecodePayload getOIDCDecodePayload(OAuthProvider provider, String idToken) {
         OIDCPublicKeysResponse oidcPublicKeysResponse;
 
-        // TODO APPLE과 KAKAO 구분
-        oidcPublicKeysResponse = kakaoOauthClient.getKakaoOIDCOpenKeys();
+        if (provider.equals(KAKAO)) {
+            oidcPublicKeysResponse = kakaoOauthClient.getKakaoOIDCOpenKeys();
+        } else if (provider.equals(APPLE)) {
+            oidcPublicKeysResponse = appleOauthClient.getAppleOIDCOpenKeys();
+        } else {
+            throw new CustomException(ErrorCode.OAUTH_PROVIDER_NOT_FOUND);
+        }
 
         return oauthOIDCService.getPayloadFromIdToken(
                 idToken,
-                kakaoOAuthProperties.getBaseUrl(),
-                kakaoOAuthProperties.getAppId(),
+                oauthProperties.getBaseUrl(provider),
+                oauthProperties.getAppKey(provider),
                 oidcPublicKeysResponse);
     }
 

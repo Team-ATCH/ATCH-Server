@@ -23,13 +23,17 @@ spring:
         default_batch_fetch_size: 100
 oauth:
   kakao:
-    baseUrl: https://kauth.kakao.com
-    clientId: ${KAKAO_CLIENT_ID}
-    clientSecret: ${KAKAO_CLIENT_SECRET}
-    redirectUrl: ${KAKAO_REDIRECT_URL}
-    appId: ${KAKAO_APP_ID}
-    adminKey: KAKAO_ADMIN_KEY
-    webClientId: KAKAO_WEB_CLIENT_ID
-    webAppId: KAKAO_WEB_APP_ID
+    base-url: https://kauth.kakao.com
+    app-key: ${KAKAO_APP_KEY}
+    client-id: ${KAKAO_CLIENT_ID}
+    client-secret: ${KAKAO_CLIENT_SECRET}
+    redirect-url: ${KAKAO_REDIRECT_URL}
+  apple:
+    base-url: ${APPLE_BASE_URL}
+    app-key: ${APPLE_APP_KEY}
+    client-id: ${APPLE_CLIENT_ID}
+    client-secret: ${APPLE_CLIENT_SECRET}
+    redirect-url: ${APPLE_REDIRECT_URL}
+
 token:
   secret: ${SECRET_KEY}
