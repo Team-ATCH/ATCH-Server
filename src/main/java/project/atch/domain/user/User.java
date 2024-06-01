@@ -25,7 +25,7 @@ public class User extends BaseEntity {
     private Boolean locationPermission;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "varchar(5)")
+    @Column(columnDefinition = "char(5)")
     private OAuthProvider oAuthProvider;
 
     @Enumerated(EnumType.STRING)
