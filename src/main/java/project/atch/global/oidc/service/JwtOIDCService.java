@@ -50,7 +50,7 @@ public class JwtOIDCService {
         return splitToken[0] + "." + splitToken[1] + ".";
     }
 
-    //
+    // 공개키로 토큰 바디를 디코드한다.
     public OIDCDecodePayload getOIDCTokenBody(String token, String modulus, String exponent) {
         Claims body = getOIDCTokenJws(token, modulus, exponent).getBody();
         return new OIDCDecodePayload(
@@ -69,10 +69,10 @@ public class JwtOIDCService {
                     .build()
                     .parseClaimsJws(token);
         } catch (ExpiredJwtException e) {
-            throw new CustomException(ErrorCode.REQUEST_VALIDATION_EXCEPTION); // TODO
+            throw new CustomException(ErrorCode.REQUEST_VALIDATION_EXCEPTION);
         } catch (Exception e) {
             log.error(e.toString());
-            throw new CustomException(ErrorCode.REQUEST_VALIDATION_EXCEPTION); // TODO
+            throw new CustomException(ErrorCode.REQUEST_VALIDATION_EXCEPTION);
         }
     }
 
