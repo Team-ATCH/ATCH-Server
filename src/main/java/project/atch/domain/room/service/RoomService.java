@@ -29,13 +29,12 @@ public class RoomService {
     public void createRoom(Long userId, RoomFormDto dto) {
         User toUser = userRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_INFORMATION_NOT_FOUND));
-        User fromUser = userRepository.findById(userId)
-                .orElseThrow();
+
 
         // TODO 이미 존재하는 방이 있는지 확인
         Room room = Room.builder()
-                .fromUser(fromUser)
-                .toUser(toUser).build();
+                .fromUserId(userId)
+                .toUserId(toUser.getId()).build();
         roomRepository.save(room);
 
         log.info("[RoomService-createRoom] {}, {} room 엔티티 생성" ,userId, toUser.getId());
@@ -59,7 +58,7 @@ public class RoomService {
     public void validateUserInRoom(Long userId, Long roomId){
         Room room = roomRepository.findById(roomId).orElseThrow();
 
-        if (userId != room.getToUser().getId() && userId != room.getFromUser().getId()){
+        if (userId != room.getToUserId() && userId != room.getFromUserId()){
             throw new CustomException(ErrorCode.USER_NOT_IN_CHAT_ROOM);
         }
     }

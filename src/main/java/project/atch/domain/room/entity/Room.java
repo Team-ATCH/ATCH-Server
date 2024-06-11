@@ -5,7 +5,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import project.atch.domain.user.User;
 import project.atch.global.entity.BaseEntity;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
@@ -20,18 +19,14 @@ public class Room extends BaseEntity {
     @Column(name = "room_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private User fromUser;
+    private Long fromUserId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private User toUser;
+    private Long toUserId;
 
     @Builder
-    public Room(User fromUser, User toUser){
-        this.fromUser = fromUser;
-        this.toUser = toUser;
+    public Room(Long fromUserId, Long toUserId){
+        this.fromUserId = fromUserId;
+        this.toUserId = toUserId;
     }
 
 }
