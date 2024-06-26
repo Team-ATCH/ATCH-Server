@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import project.atch.domain.room.service.RoomService;
 import project.atch.global.exception.CustomException;
 import project.atch.global.exception.ErrorCode;
 import reactor.core.publisher.Flux;
@@ -28,8 +27,6 @@ public class ChatController {
 
     private final ChatService chatService;
 
-    private final SimpMessageSendingOperations template;
-
     //메세지 송신 및 수신
     @MessageMapping("/message/{roomId}")
     public Mono<ResponseEntity<Void>> receiveMessage(@DestinationVariable Long roomId, @RequestBody RequestMessageDto chat, SimpMessageHeaderAccessor headerAccessor) {
@@ -41,14 +38,12 @@ public class ChatController {
         }
         Long userId = (Long) sessionAttributes.get("userId");
 
-        // TODO 채팅방에 사용자 있는지 검증
-
-        return chatService.saveChatMessage(roomId, chat.getContent(), userId).flatMap(message -> {
-            // 메시지를 해당 채팅방 구독자들에게 전송
-            template.convertAndSend("/sub/message/" + roomId,
-                    chat.getContent());
-            return Mono.just(ResponseEntity.ok().build());
-        });
+        return chatService.processMessage(roomId, chat.getContent(), userId)
+                .flatMap(message -> {
+                    // 메시지를 해당 채팅방 구독자들에게 전송
+                    chatService.sendMessageToSubscribers(roomId, chat.getContent());
+                    return Mono.just(ResponseEntity.ok().build());
+                });
     }
 
     // 이전 채팅 내용 조회
