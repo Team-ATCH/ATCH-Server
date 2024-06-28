@@ -1,5 +1,6 @@
 package project.atch.domain.chat.service;
 
+import java.util.Date;
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,7 @@ public class ChatService {
     @Transactional
     public Mono<Chat> saveChatMessage(Long roomId, String content, Long fromUserId) {
         return chatRepository.save(
-                new Chat(roomId, content, fromUserId));
+                new Chat(roomId, content, fromUserId, new Date()));
     }
 
     public Mono<Chat> processMessage(Long roomId, String content, Long userId) {
@@ -79,9 +80,9 @@ public class ChatService {
 
 
     @Transactional(readOnly = true)
-    public Flux<PreviewMessageDto> findOldestMessagesFromAllRooms() {
+    public Flux<PreviewMessageDto> findOldestMessagesFromAllRooms(int limit, long lastId) {
         // 각 채팅방에서 가장 오래된 메시지를 조회
-        Flux<Chat> chats = chatRepository.findOldestMessagesFromAllRooms()
+        Flux<Chat> chats = chatRepository.findOldestMessagesFromAllRooms(limit, lastId)
                 .subscribeOn(Schedulers.boundedElastic());
 
         // 각 채팅 메시지에 대해 닉네임을 동기적으로 조회하고, PreviewMessageDto로 변환

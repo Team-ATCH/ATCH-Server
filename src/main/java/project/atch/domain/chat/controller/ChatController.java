@@ -9,10 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import project.atch.domain.chat.dto.PreviewMessageDto;
 import project.atch.domain.chat.service.ChatService;
 import project.atch.domain.chat.dto.RequestMessageDto;
@@ -59,8 +56,8 @@ public class ChatController {
 
     // 전체 채팅방 + 각 첫 번째 채팅 조회
     @GetMapping("/message/list")
-    public Mono<ResponseEntity<List<PreviewMessageDto>>> findLists(){
-        return chatService.findOldestMessagesFromAllRooms()
+    public Mono<ResponseEntity<List<PreviewMessageDto>>> findLists(@RequestParam(defaultValue = "10") int limit, @RequestParam(defaultValue = "-1") long lastId){
+        return chatService.findOldestMessagesFromAllRooms(limit, lastId)
                 .collectList()
                 .map(ResponseEntity::ok);
     }
