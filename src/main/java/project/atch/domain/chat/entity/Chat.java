@@ -1,7 +1,6 @@
-package project.atch.domain.chat;
+package project.atch.domain.chat.entity;
 
 import jakarta.persistence.Id;
-import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,7 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Chat {
+public class Chat{
     @Id
     private ObjectId id;
 
@@ -22,14 +21,12 @@ public class Chat {
 
     private String content;
 
-    private Long fromUserId;
+    private Long fromId;
 
-    private Date createdDate;
 
-    public Chat(Long roomId, String content, Long fromUserId, Date date) {
+    public Chat(Long roomId, String content, Long fromId) {
         this.roomId = roomId;
         this.content = content;
-        this.fromUserId = fromUserId;
-        this.createdDate = date;
+        this.fromId = fromId;
     }
 }

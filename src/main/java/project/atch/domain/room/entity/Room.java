@@ -19,14 +19,14 @@ public class Room extends BaseEntity {
     @Column(name = "room_id")
     private Long id;
 
-    private Long fromUserId;
+    private Long fromId;
 
-    private Long toUserId;
+    private Long toId;
 
     @Builder
-    public Room(Long fromUserId, Long toUserId){
-        this.fromUserId = fromUserId;
-        this.toUserId = toUserId;
+    public Room(Long fromId, Long toId){
+        this.fromId = fromId;
+        this.toId = toId;
     }
 
 }
