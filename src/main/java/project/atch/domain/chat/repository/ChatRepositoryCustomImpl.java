@@ -42,7 +42,8 @@ public class ChatRepositoryCustomImpl implements ChatRepositoryCustom {
                 Accumulators.first("roomId", "$roomId"),
                 Accumulators.first("content", "$content"),
                 Accumulators.first("fromId", "$fromId"),
-                Accumulators.first("createdAt", "$createdAt")
+                Accumulators.first("createdAt", "$createdAt"),
+                Accumulators.first("read", "$read")
         ));
         pipeline.add(Aggregates.sort(Sorts.orderBy(Sorts.descending("createdAt")))); // 그룹화 후 createdAt 필드를 내림차순으로 정렬
         pipeline.add(Aggregates.limit(limit));
@@ -55,8 +56,9 @@ public class ChatRepositoryCustomImpl implements ChatRepositoryCustom {
                     String content = document.getString("content");
                     Long fromId = document.getLong("fromId");
                     Date createdAt = document.getDate("createdAt");
+                    Boolean read = document.getBoolean("read");
 
-                    return new Chat(id, roomId, content, fromId, createdAt);
+                    return new Chat(id, roomId, content, fromId, createdAt, read);
                 });
     }
 
