@@ -14,7 +14,6 @@ import project.atch.domain.chat.entity.Chat;
 import project.atch.domain.chat.repository.ChatRepository;
 import project.atch.domain.room.entity.Room;
 import project.atch.domain.room.repository.RoomRepository;
-import project.atch.domain.room.service.RoomService;
 import project.atch.domain.user.User;
 import project.atch.domain.user.UserRepository;
 import project.atch.global.exception.CustomException;
@@ -65,7 +64,7 @@ public class ChatService {
     @Transactional(readOnly = true)
     public Flux<ResponseMessageDto> findAllMessages(Long roomId) {
         // 해당 채팅방의 모든 채팅 메시지를 비동기적으로 조회
-        Flux<Chat> chats = chatRepository.findAllByRoomId(roomId)
+        Flux<Chat> chats = chatRepository.findAllByRoomIdOrderByCreatedAtDesc(roomId)
                 .subscribeOn(Schedulers.boundedElastic());
 
         // 각 채팅 메시지에 대해 닉네임을 동기적으로 조회하고, ResponseMessageDto로 변환

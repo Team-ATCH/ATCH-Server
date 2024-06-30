@@ -15,9 +15,11 @@ public class PreviewMessageDto {
     private Long fromId;
     private String fromNickname;
     private Date createdAt;
+    private Boolean read;
 
     static public PreviewMessageDto of(Chat chat, String nickname) {
-        return new PreviewMessageDto(chat.getRoomId(), chat.getContent(), chat.getFromId(), nickname, chat.getCreatedAt());
+        return new PreviewMessageDto(chat.getRoomId(), chat.getContent(), chat.getFromId(),
+                nickname, chat.getCreatedAt(), chat.isRead());
     }
 
 }

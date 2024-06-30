@@ -1,6 +1,5 @@
 package project.atch.domain.chat.entity;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,6 +24,7 @@ public class Chat{
     private String content;
 
     private Long fromId;
+
     private Date createdAt;
 
     private boolean read;
@@ -34,5 +34,6 @@ public class Chat{
         this.content = content;
         this.fromId = fromId;
         this.createdAt = date;
+        this.read = false;
     }
 }
