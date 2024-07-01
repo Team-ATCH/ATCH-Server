@@ -7,13 +7,17 @@ import com.mongodb.client.model.Sorts;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import com.mongodb.reactivestreams.client.MongoDatabase;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import project.atch.domain.chat.entity.Chat;
+import project.atch.global.exception.CustomException;
+import project.atch.global.exception.ErrorCode;
 import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
 
 
 import java.util.ArrayList;
@@ -21,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 
 @Repository
+@Slf4j
 public class ChatRepositoryCustomImpl implements ChatRepositoryCustom {
 
     @Autowired
@@ -49,17 +54,23 @@ public class ChatRepositoryCustomImpl implements ChatRepositoryCustom {
         pipeline.add(Aggregates.limit(limit));
 
         // Aggregation 실행 후 Flux로 변환하여 반환
-        return Flux.from(collection.aggregate(pipeline))
-                .map(document -> {
-                    ObjectId id = document.getObjectId("id");
-                    Long roomId = document.getLong("roomId");
-                    String content = document.getString("content");
-                    Long fromId = document.getLong("fromId");
-                    Date createdAt = document.getDate("createdAt");
-                    Boolean read = document.getBoolean("read");
+        try {
+            return Flux.from(collection.aggregate(pipeline))
+                    .map(document -> {
+                        ObjectId id = document.getObjectId("id");
+                        Long roomId = document.getLong("roomId");
+                        String content = document.getString("content");
+                        Long fromId = document.getLong("fromId");
+                        Date createdAt = document.getDate("createdAt");
+                        Boolean read = document.getBoolean("read");
 
-                    return new Chat(id, roomId, content, fromId, createdAt, read);
-                });
+                        return new Chat(id, roomId, content, fromId, createdAt, read);
+                    })
+                    .subscribeOn(Schedulers.boundedElastic()); // 비동기 실행
+        } catch (Exception e) {
+            log.error(e.toString());
+            return Flux.error(new CustomException(ErrorCode.QUERY_EXECUTION_FAILED));
+        }
     }
 
 }

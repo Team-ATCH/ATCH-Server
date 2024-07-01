@@ -12,6 +12,3 @@ public interface ChatRepository extends ReactiveMongoRepository<Chat, String>, C
         return findAllByRoomId(roomId, Sort.by(Sort.Direction.DESC, "createdAt"));
     }
 }
-
-
-

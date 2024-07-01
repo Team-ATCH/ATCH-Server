@@ -67,7 +67,7 @@ public class ChatService {
         Flux<Chat> chats = chatRepository.findAllByRoomIdOrderByCreatedAtDesc(roomId)
                 .subscribeOn(Schedulers.boundedElastic());
 
-        // 각 채팅 메시지에 대해 닉네임을 동기적으로 조회하고, ResponseMessageDto로 변환
+        // 각 채팅 메시지에 대해 닉네임을 조회하고, ResponseMessageDto로 변환
         return chats.flatMap(chatMessage ->
                 Mono.fromCallable(() -> {
                     Optional<User> user = userRepository.findById(chatMessage.getFromId());
@@ -84,7 +84,7 @@ public class ChatService {
         Flux<Chat> chats = chatRepository.findOldestMessagesFromAllRooms(limit, lastId)
                 .subscribeOn(Schedulers.boundedElastic());
 
-        // 각 채팅 메시지에 대해 닉네임을 동기적으로 조회하고, PreviewMessageDto로 변환
+        // 각 채팅 메시지에 대해 닉네임을 조회하고, PreviewMessageDto로 변환
         return chats.flatMap(chatMessage ->
                 Mono.fromCallable(() -> {
                     Optional<User> user = userRepository.findById(chatMessage.getFromId());
