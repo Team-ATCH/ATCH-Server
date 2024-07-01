@@ -31,10 +31,9 @@ public class RoomService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_INFORMATION_NOT_FOUND));
 
 
-        // TODO 이미 존재하는 방이 있는지 확인
         Room room = Room.builder()
-                .fromUserId(userId)
-                .toUserId(toUser.getId()).build();
+                .fromId(userId)
+                .toId(toUser.getId()).build();
         roomRepository.save(room);
 
         log.info("[RoomService-createRoom] {}, {} room 엔티티 생성" ,userId, toUser.getId());
@@ -52,16 +51,7 @@ public class RoomService {
      */
 
 
-    /**
-     * 채팅방에 속한 유저인지 검증
-     */
-    public void validateUserInRoom(Long userId, Long roomId){
-        Room room = roomRepository.findById(roomId).orElseThrow();
 
-        if (userId != room.getToUserId() && userId != room.getFromUserId()){
-            throw new CustomException(ErrorCode.USER_NOT_IN_CHAT_ROOM);
-        }
-    }
 
 
 }

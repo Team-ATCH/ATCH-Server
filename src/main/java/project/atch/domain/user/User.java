@@ -21,8 +21,13 @@ public class User extends BaseEntity {
 
     private String email;
     private String nickname;
+    private String hashTag;
 
     private Boolean locationPermission;
+    private Double latitude; // 위도
+    private Double longitude; // 경도
+
+    // TODO 캐릭터, 아이템 고려
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "char(5)")

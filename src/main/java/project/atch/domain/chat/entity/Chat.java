@@ -1,7 +1,6 @@
-package project.atch.domain.chat;
+package project.atch.domain.chat.entity;
 
 import jakarta.persistence.Id;
-import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,12 +8,14 @@ import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Date;
+
 @Document(collection = "chat") // 실제 몽고 DB 컬렉션 이름
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Chat {
+public class Chat{
     @Id
     private ObjectId id;
 
@@ -22,14 +23,17 @@ public class Chat {
 
     private String content;
 
-    private Long fromUserId;
+    private Long fromId;
 
-    private Date createdDate;
+    private Date createdAt;
 
-    public Chat(Long roomId, String content, Long fromUserId, Date date) {
+    private boolean read;
+
+    public Chat(Long roomId, String content, Long fromId, Date date) {
         this.roomId = roomId;
         this.content = content;
-        this.fromUserId = fromUserId;
-        this.createdDate = date;
+        this.fromId = fromId;
+        this.createdAt = date;
+        this.read = false;
     }
 }
