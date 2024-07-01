@@ -27,7 +27,6 @@ public class User extends BaseEntity {
     private Double latitude; // 위도
     private Double longitude; // 경도
 
-    // TODO 캐릭터, 아이템 고려
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "char(5)")
@@ -36,6 +35,10 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "varchar(10)")
     private Role role;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "character_id")
+    private Character character;
 
     @Builder
     private User(OAuthProvider oAuthProvider, String nickname, String email){
