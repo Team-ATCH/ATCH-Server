@@ -65,4 +65,9 @@ public class User extends BaseEntity {
         return false;
     }
 
+    public void updateLocation(double latitude, double longitude){
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
 }
