@@ -1,4 +1,4 @@
-package project.atch.domain.user;
+package project.atch.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -55,6 +55,14 @@ public class User extends BaseEntity {
 
     public void updateNickname(String nickname){
         this.nickname = nickname;
+    }
+    public boolean isInHongdae(){
+        // TODO 임의로 위도 경도 지정. 기획 측에 문의해봐야함.
+        if (37.546856 <= latitude && latitude <= 37.566418 && 126.907221 <= longitude && longitude <= 126.933994){
+            return true;
+        }
+
+        return false;
     }
 
 }

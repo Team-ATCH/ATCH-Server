@@ -7,8 +7,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import project.atch.domain.user.User;
-import project.atch.domain.user.UserRepository;
+import project.atch.domain.user.entity.User;
+import project.atch.domain.user.repository.UserRepository;
 
 import java.util.Collections;
 

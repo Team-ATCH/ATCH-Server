@@ -1,4 +1,4 @@
-package project.atch.domain.user;
+package project.atch.domain.user.entity;
 
 public enum Role {
     ROLE_USER, ROLE_ADMIN

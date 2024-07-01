@@ -5,9 +5,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import project.atch.domain.user.OAuthProvider;
-import project.atch.domain.user.User;
-import project.atch.domain.user.UserRepository;
+import project.atch.domain.user.entity.OAuthProvider;
+import project.atch.domain.user.entity.User;
+import project.atch.domain.user.repository.UserRepository;
 import project.atch.global.exception.CustomException;
 import project.atch.global.exception.ErrorCode;
 import project.atch.global.jwt.JwtTokenProvider;
@@ -17,8 +17,8 @@ import project.atch.global.oidc.feign.KakaoOauthClient;
 
 import java.util.Optional;
 
-import static project.atch.domain.user.OAuthProvider.APPLE;
-import static project.atch.domain.user.OAuthProvider.KAKAO;
+import static project.atch.domain.user.entity.OAuthProvider.APPLE;
+import static project.atch.domain.user.entity.OAuthProvider.KAKAO;
 
 @RequiredArgsConstructor
 @Transactional

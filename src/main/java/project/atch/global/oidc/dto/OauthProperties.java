@@ -3,7 +3,7 @@ package project.atch.global.oidc.dto;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import project.atch.domain.user.OAuthProvider;
+import project.atch.domain.user.entity.OAuthProvider;
 import project.atch.global.exception.CustomException;
 import project.atch.global.exception.ErrorCode;
 

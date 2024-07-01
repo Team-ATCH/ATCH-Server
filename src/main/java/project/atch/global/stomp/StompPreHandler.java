@@ -8,8 +8,8 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.stereotype.Component;
-import project.atch.domain.user.User;
-import project.atch.domain.user.UserRepository;
+import project.atch.domain.user.entity.User;
+import project.atch.domain.user.repository.UserRepository;
 import project.atch.global.jwt.JwtTokenProvider;
 
 import java.util.Map;
