@@ -37,6 +37,19 @@ public class UserService {
         Character character = characterRepository.findById(characterId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHARACTER_NOT_FOUND));
         user.updateCharacter(character);
-
     }
+
+
+    @Transactional
+    public void updateHashTag(long userId, List<String> hashTag){
+        User user = userRepository.findById(userId).orElseThrow();
+        user.updateHashTag(String.join(", ", hashTag));
+    }
+
+    @Transactional
+    public void updateNickname(long userId, String nickname){
+        User user = userRepository.findById(userId).orElseThrow();
+        user.updateNickname(nickname);
+    }
+
 }

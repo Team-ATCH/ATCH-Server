@@ -77,4 +77,8 @@ public class User extends BaseEntity {
         this.character = character;
     }
 
+    public void updateHashTag(String hashTag){
+        this.hashTag = hashTag;
+    }
+
 }
