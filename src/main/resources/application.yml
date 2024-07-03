@@ -39,3 +39,9 @@ oauth:
 
 token:
   secret: ${SECRET_KEY}
+
+#logging:
+#  level:
+#    root: DEBUG
+#    org.springframework: DEBUG
+#    com.example: DEBUG

@@ -18,9 +18,11 @@ public enum ErrorCode {
 
     /* 401 Unauthorized */
     USER_NOT_FOUND_IN_SESSION(HttpStatus.UNAUTHORIZED, "웹소켓 통신 중 세션에서 사용자를 찾을 수 없습니다."),
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "사용자의 권한이 없습니다."),
 
     /* 404 NOT FOUND*/
     ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "잘못된 방을 요청하였습니다."),
+    CHARACTER_NOT_FOUND(HttpStatus.NOT_FOUND, "잘못된 캐릭터를 요청하였습니다."),
 
     /* 500 Internal Server Error */
     QUERY_EXECUTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "데이터베이스 쿼리 실행 중 실패하였습니다.");

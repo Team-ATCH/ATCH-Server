@@ -73,4 +73,8 @@ public class User extends BaseEntity {
         this.longitude = longitude;
     }
 
+    public void updateCharacter(Character character){
+        this.character = character;
+    }
+
 }
