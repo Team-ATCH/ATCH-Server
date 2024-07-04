@@ -18,11 +18,14 @@ spring:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
       ddl-auto: update
+#    show-sql: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
         database-platform: org.hibernate.dialect.MySQLDialect
         default_batch_fetch_size: 100
+#        format_sql: true
+
 oauth:
   kakao:
     base-url: https://kauth.kakao.com
@@ -39,3 +42,11 @@ oauth:
 
 token:
   secret: ${SECRET_KEY}
+
+logging:
+  level:
+    root: INFO #DEBUG
+#    org.hibernate.SQL: DEBUG
+#    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+#    org.springframework: DEBUG
+#    com.example: DEBUG

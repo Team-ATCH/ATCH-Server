@@ -3,7 +3,7 @@ package project.atch.global.security;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import project.atch.domain.user.User;
+import project.atch.domain.user.entity.User;
 
 import java.util.Collection;
 

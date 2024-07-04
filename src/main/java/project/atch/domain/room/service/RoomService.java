@@ -7,8 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import project.atch.domain.room.entity.Room;
 import project.atch.domain.room.dto.RoomFormDto;
 import project.atch.domain.room.repository.RoomRepository;
-import project.atch.domain.user.User;
-import project.atch.domain.user.UserRepository;
+import project.atch.domain.user.entity.User;
+import project.atch.domain.user.repository.UserRepository;
 import project.atch.global.exception.CustomException;
 import project.atch.global.exception.ErrorCode;
 

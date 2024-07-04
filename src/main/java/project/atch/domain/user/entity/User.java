@@ -1,4 +1,4 @@
-package project.atch.domain.user;
+package project.atch.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -27,7 +27,6 @@ public class User extends BaseEntity {
     private Double latitude; // 위도
     private Double longitude; // 경도
 
-    // TODO 캐릭터, 아이템 고려
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "char(5)")
@@ -36,6 +35,10 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "varchar(10)")
     private Role role;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "character_id")
+    private Character character;
 
     @Builder
     private User(OAuthProvider oAuthProvider, String nickname, String email){
@@ -55,6 +58,26 @@ public class User extends BaseEntity {
 
     public void updateNickname(String nickname){
         this.nickname = nickname;
+    }
+    public boolean isInHongdae(){
+        // TODO 임의로 위도 경도 지정. 기획 측에 문의해봐야함.
+        if (37.546856 <= latitude && latitude <= 37.566418 && 126.907221 <= longitude && longitude <= 126.933994){
+            return true;
+        }
+        return false;
+    }
+
+    public void updateLocation(double latitude, double longitude){
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
+    public void updateCharacter(Character character){
+        this.character = character;
+    }
+
+    public void updateHashTag(String hashTag){
+        this.hashTag = hashTag;
     }
 
 }

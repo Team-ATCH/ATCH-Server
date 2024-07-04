@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import project.atch.domain.user.OAuthProvider;
+import project.atch.domain.user.entity.OAuthProvider;
 import project.atch.global.oidc.dto.OAuthCodeReqeust;
 import project.atch.global.oidc.service.OAuthService;
 
