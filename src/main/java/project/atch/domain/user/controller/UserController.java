@@ -46,4 +46,11 @@ public class UserController {
         userService.updateNickname(userDetails.getUserId(), dto.getNickname());
     }
 
+    @PostMapping("/item")
+    public void updateItem(@RequestBody RequestItemDto dto,
+                           @AuthenticationPrincipal CustomUserDetails userDetails){
+        if (userDetails == null) throw new CustomException(ErrorCode.UNAUTHORIZED);
+        userService.updateItem(userDetails.getUserId(), dto.getItemId());
+    }
+
 }
