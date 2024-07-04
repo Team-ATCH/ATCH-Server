@@ -64,7 +64,6 @@ public class User extends BaseEntity {
         if (37.546856 <= latitude && latitude <= 37.566418 && 126.907221 <= longitude && longitude <= 126.933994){
             return true;
         }
-
         return false;
     }
 

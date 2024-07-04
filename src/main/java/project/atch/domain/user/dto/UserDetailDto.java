@@ -11,11 +11,15 @@ public class UserDetailDto {
     private Long userId;
     private String nickname;
     private String hashTag;
-    // TODO 캐릭터 추가
+    private String characterImage;
+    private String itemImage;
+    private Double itemX;
+    private Double itemY;
     private Double latitude; // 위도
     private Double longitude; // 경도
 
-    static public UserDetailDto of(User user){
-        return new UserDetailDto(user.getId(), user.getNickname(), user.getHashTag(), user.getLatitude(), user.getLongitude());
+    static public UserDetailDto of(User user, String item){
+        return new UserDetailDto(user.getId(), user.getNickname(), user.getHashTag(), user.getCharacter().getImage(),
+                item, user.getCharacter().getItemX(), user.getCharacter().getItemY() ,user.getLatitude(), user.getLongitude());
     }
 }

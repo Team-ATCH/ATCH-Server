@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.atch.domain.user.dto.UserDetailDto;
 import project.atch.domain.user.entity.User;
+import project.atch.domain.user.repository.UserItemRepository;
 import project.atch.domain.user.repository.UserRepository;
 
 import java.util.List;
@@ -17,13 +18,20 @@ import java.util.stream.Collectors;
 public class HomeService {
 
     private final UserRepository userRepository;
+    private final UserItemRepository userItemRepository;
 
     @Transactional(readOnly = true)
     public List<UserDetailDto> getUsersDetail(){
         return userRepository.findAllByLocationPermissionTrue().stream()
                 .filter(User::isInHongdae)
-                .map(UserDetailDto::of)
+                .map(user -> {
+                    String itemImage = userItemRepository.findByUserAndUsed(user, true)
+                            .map(userItem -> userItem.getItem().getImage())
+                            .orElse(null);
+                    return UserDetailDto.of(user, itemImage);
+                })
                 .collect(Collectors.toList());
+
     }
 
     @Transactional
