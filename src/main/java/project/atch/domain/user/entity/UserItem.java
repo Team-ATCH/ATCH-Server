@@ -31,8 +31,8 @@ public class UserItem {
         this.used = used;
     }
 
-    public void switchedUsed(){
-        used = !used;
+    public void switchedUsed(boolean flag){
+        used = flag;
     }
 
 }

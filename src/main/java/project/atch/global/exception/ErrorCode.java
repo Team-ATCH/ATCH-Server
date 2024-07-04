@@ -18,7 +18,7 @@ public enum ErrorCode {
 
     /* 401 Unauthorized */
     USER_NOT_FOUND_IN_SESSION(HttpStatus.UNAUTHORIZED, "웹소켓 통신 중 세션에서 사용자를 찾을 수 없습니다."),
-    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "사용자의 권한이 없습니다."),
+    PERMISSION_DENIED(HttpStatus.UNAUTHORIZED, "사용자의 권한이 없습니다."),
 
     /* 404 NOT FOUND*/
     ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "잘못된 방을 요청하였습니다."),

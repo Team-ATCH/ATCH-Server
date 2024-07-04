@@ -28,21 +28,21 @@ public class UserController {
     @PostMapping("/character")
     public void takeCharacter(@RequestBody RequestCharacterDto dto,
             @AuthenticationPrincipal CustomUserDetails userDetails){
-        if (userDetails == null) throw new CustomException(ErrorCode.UNAUTHORIZED);
+        if (userDetails == null) throw new CustomException(ErrorCode.PERMISSION_DENIED);
         userService.updateCharacter(userDetails.getUserId(), dto.getCharacterId());
     }
 
     @PostMapping("/hash-tag")
     public void chooseHashTag(@RequestBody RequestHashTagDto dto,
                               @AuthenticationPrincipal CustomUserDetails userDetails){
-        if (userDetails == null) throw new CustomException(ErrorCode.UNAUTHORIZED);
+        if (userDetails == null) throw new CustomException(ErrorCode.PERMISSION_DENIED);
         userService.updateHashTag(userDetails.getUserId(), dto.getHashTag());
     }
 
     @PostMapping("/nickname")
     public void updateNickname(@RequestBody RequestNicknameDto dto,
                               @AuthenticationPrincipal CustomUserDetails userDetails){
-        if (userDetails == null) throw new CustomException(ErrorCode.UNAUTHORIZED);
+        if (userDetails == null) throw new CustomException(ErrorCode.PERMISSION_DENIED);
         userService.updateNickname(userDetails.getUserId(), dto.getNickname());
     }
 
@@ -54,7 +54,7 @@ public class UserController {
     @PostMapping("/item")
     public void updateItem(@RequestBody RequestItemDto dto,
                            @AuthenticationPrincipal CustomUserDetails userDetails){
-        if (userDetails == null) throw new CustomException(ErrorCode.UNAUTHORIZED);
+        if (userDetails == null) throw new CustomException(ErrorCode.PERMISSION_DENIED);
         userService.updateItem(userDetails.getUserId(), dto.getItemId());
     }
 

@@ -81,7 +81,7 @@ public class UserService {
         UserItem used = userItemRepository.findByUserAndUsed(user, true).orElseThrow();// 현재 착용중인 아이템
         UserItem newOne = userItemRepository.findByUserAndItem(user, item).orElseThrow(); // 착용할 아이템
 
-        used.switchedUsed();
-        newOne.switchedUsed();
+        used.switchedUsed(false);
+        newOne.switchedUsed(true);
     }
 }
