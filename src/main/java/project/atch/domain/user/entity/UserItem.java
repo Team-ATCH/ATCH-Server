@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 
 @Entity
 @Getter
+@IdClass(UserItemId.class)
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserItem {
 
@@ -28,6 +29,10 @@ public class UserItem {
         this.user = user;
         this.item = item;
         this.used = used;
+    }
+
+    public void switchedUsed(){
+        used = !used;
     }
 
 }
