@@ -21,6 +21,6 @@ public interface UserItemRepository extends JpaRepository<UserItem, UserItemId> 
     @Query("SELECT ui FROM UserItem ui WHERE ui.user.id = :userId AND ui.item.id = :itemId")
     Optional<UserItem> findByUserIdAndItemId(@Param("userId") Long userId, @Param("itemId") Long itemId);
 
-    @Query("SELECT i.image FROM UserItem ui JOIN ui.item i WHERE ui.user.id = :userId")
-    List<String> findItemImagesByUserId(@Param("userId") Long userId);
+    @Query("SELECT i.id, i.image FROM UserItem ui JOIN ui.item i WHERE ui.user.id = :userId")
+    List<Object[]> findItemIdsAndImagesByUserId(@Param("userId") Long userId);
 }

@@ -17,6 +17,7 @@ import project.atch.global.exception.CustomException;
 import project.atch.global.exception.ErrorCode;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -62,8 +63,13 @@ public class UserService {
     @Transactional(readOnly = true)
     public ResponseItemDto getAllItems(long userId){
         User user = userRepository.findById(userId).orElseThrow();
-        List<String> itemImages = userItemRepository.findItemImagesByUserId(userId);
-        return new ResponseItemDto(user.getCharacter().getImage(), itemImages,
+        List<Object[]> results = userItemRepository.findItemIdsAndImagesByUserId(userId);
+        Map<Long, String> items = results.stream()
+                .collect(Collectors.toMap(
+                        result -> (Long) result[0],
+                        result -> (String) result[1]
+                ));
+        return new ResponseItemDto(user.getCharacter().getImage(), items,
                 user.getCharacter().getItemX(), user.getCharacter().getItemY());
 
     }
