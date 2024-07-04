@@ -46,6 +46,11 @@ public class UserController {
         userService.updateNickname(userDetails.getUserId(), dto.getNickname());
     }
 
+    @GetMapping("/item")
+    public ResponseItemDto getAllItems(@AuthenticationPrincipal CustomUserDetails userDetails){
+        return userService.getAllItems(userDetails.getUserId());
+    }
+
     @PostMapping("/item")
     public void updateItem(@RequestBody RequestItemDto dto,
                            @AuthenticationPrincipal CustomUserDetails userDetails){

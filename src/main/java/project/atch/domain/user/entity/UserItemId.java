@@ -7,12 +7,8 @@ public class UserItemId implements Serializable {
     private Long user;
     private Long item;
 
-    // Default constructor
     public UserItemId() {}
 
-    // Getters and setters (optional, if needed)
-
-    // hashCode and equals
     @Override
     public int hashCode() {
         return Objects.hash(user, item);
