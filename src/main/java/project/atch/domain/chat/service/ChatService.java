@@ -77,22 +77,4 @@ public class ChatService {
         );
     }
 
-
-    @Transactional(readOnly = true)
-    public Flux<PreviewMessageDto> findOldestMessagesFromAllRooms(int limit, long lastId) {
-        // 각 채팅방에서 가장 오래된 메시지를 조회
-        Flux<Chat> chats = chatRepository.findOldestMessagesFromAllRooms(limit, lastId)
-                .subscribeOn(Schedulers.boundedElastic());
-
-        // 각 채팅 메시지에 대해 닉네임을 조회하고, PreviewMessageDto로 변환
-        return chats.flatMap(chatMessage ->
-                Mono.fromCallable(() -> {
-                    Optional<User> user = userRepository.findById(chatMessage.getFromId());
-                    String nickname = user.isPresent() ? user.get().getNickname() : "탈퇴한 사용자";
-                    return PreviewMessageDto.of(chatMessage, nickname);
-                }).subscribeOn(Schedulers.boundedElastic())
-        );
-    }
-
-
 }

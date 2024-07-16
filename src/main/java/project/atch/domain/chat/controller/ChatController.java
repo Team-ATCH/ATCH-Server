@@ -3,6 +3,10 @@ package project.atch.domain.chat.controller;
 import java.util.List;
 import java.util.Map;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -23,12 +27,14 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
+@RequestMapping("/messages")
+@Tag(name = "채팅 메세지 송수신 및 조회 API")
 public class ChatController {
 
     private final ChatService chatService;
 
     //메세지 송신 및 수신
-    @MessageMapping("/message/{roomId}")
+    @MessageMapping("/{roomId}")
     public Mono<ResponseEntity<Void>> receiveMessage(@DestinationVariable Long roomId, @RequestBody RequestMessageDto chat, SimpMessageHeaderAccessor headerAccessor) {
 
         // 세션에서 사용자 ID 가져오기
@@ -46,21 +52,16 @@ public class ChatController {
                 });
     }
 
-    // 이전 채팅 내용 조회
-    @GetMapping("/message/list/{roomId}")
+    @Operation(summary = "특정 채팅방의 모든 채팅 내용 조회",
+            description = "특정 채팅방의 모든 채팅 메세지를 조회할 수 있습니다.")
+    @Parameters({
+            @Parameter(name = "roomId", description = "채팅방 아이디"),
+    })
+    @GetMapping("/{roomId}")
     public Mono<ResponseEntity<List<ResponseMessageDto>>> find(@PathVariable("roomId") Long id) {
         Flux<ResponseMessageDto> response = chatService.findAllMessages(id);
         Mono<ResponseEntity<List<ResponseMessageDto>>> map = response.collectList().map(list -> ResponseEntity.ok(list));
         return map;
     }
-
-    // 전체 채팅방 + 각 첫 번째 채팅 조회
-    @GetMapping("/message/list")
-    public Mono<ResponseEntity<List<PreviewMessageDto>>> findLists(@RequestParam(defaultValue = "10") int limit, @RequestParam(defaultValue = "-1") long lastId){
-        return chatService.findOldestMessagesFromAllRooms(limit, lastId)
-                .collectList()
-                .map(ResponseEntity::ok);
-    }
-
 
 }

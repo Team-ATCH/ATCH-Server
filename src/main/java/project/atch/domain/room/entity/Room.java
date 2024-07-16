@@ -19,6 +19,9 @@ public class Room extends BaseEntity {
     @Column(name = "room_id")
     private Long id;
 
+    /**
+     * fromId와 toId에 unique 제약조건
+     */
     private Long fromId;
 
     private Long toId;

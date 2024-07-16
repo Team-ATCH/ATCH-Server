@@ -1,37 +1,67 @@
 package project.atch.domain.room.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+import project.atch.domain.chat.dto.PreviewMessageDto;
 import project.atch.domain.room.dto.RoomFormDto;
 import project.atch.domain.room.service.RoomService;
+import project.atch.global.exception.CustomException;
+import project.atch.global.exception.ErrorCode;
 import project.atch.global.security.CustomUserDetails;
+import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @Slf4j
+@RequestMapping("/rooms")
+@Tag(name = "채팅방 등록 및 전체 채팅방 미리보기 조회 API")
 public class RoomController {
 
     private final RoomService roomService;
 
-    /**
-     * 채팅방 등록
-     */
-    @PostMapping("/room")
-    public ResponseEntity createRoom(@RequestBody RoomFormDto form){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        Long userId = principal.getUserId();
+    @Operation(summary = "채팅방 등록",
+            description = "채팅하려는 사용자의 아이디을 받아 새로운 채팅방의 아이디를 생성합니다.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            required = true,
+            description = "userId: 채팅 수신 예정의 사용자 이메일",
+            content = @Content(
+                    schema = @Schema(implementation = RoomFormDto.Req.class)
+            )
+    ))
+    @PostMapping
+    public ResponseEntity<RoomFormDto.Res> createRoom(@RequestBody @Valid RoomFormDto.Req form,
+                                                      @AuthenticationPrincipal CustomUserDetails userDetails){
+        if (userDetails == null) throw new CustomException(ErrorCode.PERMISSION_DENIED);
 
-        roomService.createRoom(userId,form);
-        // 그러면 상대방은 자동으로 sub/room/{roomId}로 구독 시작해야함
-        return new ResponseEntity(HttpStatus.CREATED);
+        System.out.println(form.userId());
+        // 응답 내려주면 두 사용자는 sub/message/{roomId}로 구독 시작해야함
+        return roomService.createRoom(userDetails.getUserId(), form.userId());
+    }
+
+    @Operation(summary = "전체 채팅방 + 미리보기 조회",
+            description = "전체 채팅방과 각 채팅방의 첫 번째 채팅 메세지를 확인합니다.\n"
+                    +"커서 기반 페이지네이션으로 작동합니다.")
+    @Parameters({
+            @Parameter(name = "limit", description = "한 페이지 당 몇 개의 데이터를 가져올 지"),
+            @Parameter(name = "lastId", description = "마지막 채팅방 아이디")
+    })
+    @GetMapping
+    public Mono<ResponseEntity<List<PreviewMessageDto>>> findAllRooms(@RequestParam(defaultValue = "10") int limit, @RequestParam(defaultValue = "-1") long lastId){
+        return roomService.getAllRoomsWithPreviews(limit, lastId)
+                .collectList()
+                .map(ResponseEntity::ok);
     }
 
 }
