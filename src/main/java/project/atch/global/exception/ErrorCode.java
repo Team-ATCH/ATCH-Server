@@ -14,6 +14,8 @@ public enum ErrorCode {
     USER_NOT_IN_CHAT_ROOM(HttpStatus.BAD_REQUEST,"잘못된 방에 요청하였습니다."),
     USER_INFORMATION_NOT_FOUND(HttpStatus.BAD_REQUEST,"상대방의 정보를 찾을 수 없습니다."),
     OAUTH_PROVIDER_NOT_FOUND(HttpStatus.BAD_REQUEST,"잘못된 OAuthProvider입니다."),
+    INVALID_REQUEST_CONTECT(HttpStatus.BAD_REQUEST, "잘못된 데이터를 포함한 요청입니다."),
+
 
 
     /* 401 Unauthorized */
@@ -25,6 +27,7 @@ public enum ErrorCode {
     CHARACTER_NOT_FOUND(HttpStatus.NOT_FOUND, "잘못된 캐릭터를 요청하였습니다."),
 
     /* 500 Internal Server Error */
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 측에 문제가 생겼습니다."),
     QUERY_EXECUTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "데이터베이스 쿼리 실행 중 실패하였습니다.");
 
     private final HttpStatus httpStatus;
