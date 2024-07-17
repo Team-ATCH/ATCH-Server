@@ -40,6 +40,11 @@ public class User extends BaseEntity {
     @JoinColumn(name = "character_id")
     private Character character;
 
+    // 사용자가 착용중인 아이템 아이들
+    private Long itemId1;
+    private Long itemId2;
+    private Long itemId3;
+
     @Builder
     private User(OAuthProvider oAuthProvider, String nickname, String email){
         this.oAuthProvider = oAuthProvider;
@@ -78,6 +83,12 @@ public class User extends BaseEntity {
 
     public void updateHashTag(String hashTag){
         this.hashTag = hashTag;
+    }
+
+    public void updateItems(Long itemId1, Long itemId2, Long itemId3){
+        this.itemId1 = itemId1;
+        this.itemId2 = itemId2;
+        this.itemId3 = itemId3;
     }
 
 }

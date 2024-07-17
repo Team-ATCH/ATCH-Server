@@ -15,7 +15,7 @@ public enum ErrorCode {
     USER_INFORMATION_NOT_FOUND(HttpStatus.BAD_REQUEST,"상대방의 정보를 찾을 수 없습니다."),
     OAUTH_PROVIDER_NOT_FOUND(HttpStatus.BAD_REQUEST,"잘못된 OAuthProvider입니다."),
     INVALID_REQUEST_CONTECT(HttpStatus.BAD_REQUEST, "잘못된 데이터를 포함한 요청입니다."),
-
+    ITEM_NOT_OWNED(HttpStatus.BAD_REQUEST, "보유하고 있지 않은 아이템입니다."),
 
 
     /* 401 Unauthorized */

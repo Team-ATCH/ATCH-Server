@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import project.atch.domain.room.dto.RoomFormDto;
 import project.atch.domain.user.dto.*;
 import project.atch.domain.user.service.UserService;
 import project.atch.global.exception.CustomException;
@@ -98,7 +97,7 @@ public class UserController {
     public void updateItem(@RequestBody RequestItemDto dto,
                            @AuthenticationPrincipal CustomUserDetails userDetails){
         if (userDetails == null) throw new CustomException(ErrorCode.PERMISSION_DENIED);
-        userService.updateItem(userDetails.getUserId(), dto.getItemId());
+        userService.updateItems(userDetails.getUserId(), dto.getItemId1(), dto.getItemId2(), dto.getItemId3());
     }
 
 }

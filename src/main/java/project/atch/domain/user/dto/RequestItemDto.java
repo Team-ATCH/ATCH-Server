@@ -5,9 +5,13 @@ import lombok.Getter;
 
 @Getter
 public class RequestItemDto {
-    private final long itemId;
+    private final Long itemId1;
+    private final Long itemId2;
+    private final Long itemId3;
 
-    public RequestItemDto(@JsonProperty("itemId") long itemId){
-        this.itemId = itemId;
+    public RequestItemDto(@JsonProperty("itemId1") long itemId1, @JsonProperty("itemId2") long itemId2, @JsonProperty("itemId3") long itemId3){
+        this.itemId1 = itemId1;
+        this.itemId2 = itemId2;
+        this.itemId3 = itemId3;
     }
 }

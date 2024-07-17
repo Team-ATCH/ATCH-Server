@@ -16,8 +16,17 @@ public class Character {
     @GeneratedValue(strategy = IDENTITY)
     @Column(name = "character_id")
     private Long id;
+
     private String image;
-    private double itemX;
-    private double itemY;
+
+    // 캐릭터마다 아이템을 놓을 수 있는 위치가 3개씩 존재
+    private double x1;
+    private double y1;
+
+    private double x2;
+    private double y2;
+
+    private double x3;
+    private double y3;
 
 }
