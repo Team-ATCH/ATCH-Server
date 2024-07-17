@@ -41,7 +41,7 @@ public class UserController {
     @PostMapping("/character")
     public void takeCharacter(@RequestBody RequestCharacterDto dto,
             @AuthenticationPrincipal CustomUserDetails userDetails){
-        if (userDetails == null) throw new CustomException(ErrorCode.PERMISSION_DENIED);
+        if (userDetails == null) throw new CustomException(ErrorCode.TOKEN_VALIDATION_EXCEPTION);
         userService.updateCharacter(userDetails.getUserId(), dto.getCharacterId());
     }
 
@@ -57,7 +57,7 @@ public class UserController {
     @PostMapping("/hash-tag")
     public void chooseHashTag(@RequestBody RequestHashTagDto dto,
                               @AuthenticationPrincipal CustomUserDetails userDetails){
-        if (userDetails == null) throw new CustomException(ErrorCode.PERMISSION_DENIED);
+        if (userDetails == null) throw new CustomException(ErrorCode.TOKEN_VALIDATION_EXCEPTION);
         userService.updateHashTag(userDetails.getUserId(), dto.getHashTag());
     }
 
@@ -73,7 +73,7 @@ public class UserController {
     @PostMapping("/nickname")
     public void updateNickname(@RequestBody RequestNicknameDto dto,
                               @AuthenticationPrincipal CustomUserDetails userDetails){
-        if (userDetails == null) throw new CustomException(ErrorCode.PERMISSION_DENIED);
+        if (userDetails == null) throw new CustomException(ErrorCode.TOKEN_VALIDATION_EXCEPTION);
         userService.updateNickname(userDetails.getUserId(), dto.getNickname());
     }
 
@@ -96,7 +96,6 @@ public class UserController {
     @PostMapping("/item")
     public void updateItem(@RequestBody RequestItemDto dto,
                            @AuthenticationPrincipal CustomUserDetails userDetails){
-        if (userDetails == null) throw new CustomException(ErrorCode.PERMISSION_DENIED);
         userService.updateItems(userDetails.getUserId(), dto.getItemId1(), dto.getItemId2(), dto.getItemId3());
     }
 

@@ -43,9 +43,6 @@ public class RoomController {
     @PostMapping
     public ResponseEntity<RoomFormDto.Res> createRoom(@RequestBody @Valid RoomFormDto.Req form,
                                                       @AuthenticationPrincipal CustomUserDetails userDetails){
-        if (userDetails == null) throw new CustomException(ErrorCode.PERMISSION_DENIED);
-
-        System.out.println(form.userId());
         // 응답 내려주면 두 사용자는 sub/message/{roomId}로 구독 시작해야함
         return roomService.createRoom(userDetails.getUserId(), form.userId());
     }
