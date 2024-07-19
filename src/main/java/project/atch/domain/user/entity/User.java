@@ -9,6 +9,7 @@ import project.atch.global.entity.BaseEntity;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 
+// unique 제약 조건; oAuthProvider + email, nickname
 @Entity
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
@@ -40,7 +41,7 @@ public class User extends BaseEntity {
     @JoinColumn(name = "character_id")
     private Character character;
 
-    // 사용자가 착용중인 아이템 아이들
+    // 사용자가 착용중인 아이템들 아이디
     private Long itemId1;
     private Long itemId2;
     private Long itemId3;

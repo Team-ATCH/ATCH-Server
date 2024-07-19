@@ -8,8 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import project.atch.domain.chat.dto.PreviewMessageDto;
-import project.atch.domain.chat.dto.ResponseMessageDto;
+import project.atch.domain.chat.dto.MessageDto;
 import project.atch.domain.chat.entity.Chat;
 import project.atch.domain.chat.repository.ChatRepository;
 import project.atch.domain.room.entity.Room;
@@ -57,12 +56,12 @@ public class ChatService {
 
 
     public void sendMessageToSubscribers(Long roomId, String content) {
-        template.convertAndSend("/sub/message/" + roomId, content);
+        template.convertAndSend("/sub/messages/" + roomId, content);
     }
 
 
     @Transactional(readOnly = true)
-    public Flux<ResponseMessageDto> findAllMessages(Long roomId) {
+    public Flux<MessageDto.Res> findAllMessages(Long roomId) {
         // 해당 채팅방의 모든 채팅 메시지를 비동기적으로 조회
         Flux<Chat> chats = chatRepository.findAllByRoomIdOrderByCreatedAtDesc(roomId)
                 .subscribeOn(Schedulers.boundedElastic());
@@ -72,7 +71,7 @@ public class ChatService {
                 Mono.fromCallable(() -> {
                     Optional<User> user = userRepository.findById(chatMessage.getFromId());
                     String nickname = user.isPresent() ? user.get().getNickname() : "탈퇴한 사용자";
-                    return ResponseMessageDto.of(chatMessage, nickname);
+                    return MessageDto.Res.of(chatMessage, nickname);
                 }).subscribeOn(Schedulers.boundedElastic())
         );
     }

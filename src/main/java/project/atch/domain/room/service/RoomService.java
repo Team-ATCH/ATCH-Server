@@ -33,6 +33,7 @@ public class RoomService {
     private final ChatRepository chatRepository;
 
     // 채팅방 생성
+    // TODO 메서드 분리
     @Transactional
     public ResponseEntity<RoomFormDto.Res> createRoom(Long fromId, Long toId) {
         User toUser = userRepository.findById(toId)

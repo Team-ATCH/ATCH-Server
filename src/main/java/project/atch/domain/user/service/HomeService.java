@@ -25,7 +25,7 @@ public class HomeService {
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
 
-    // TODO queryDsl 리팩 예정
+    // TODO 리팩토링
     @Transactional(readOnly = true)
     public List<UserDetailDto> getUsersDetail(){
         List<UserDetailDto> list = new ArrayList<>();

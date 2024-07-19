@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.atch.domain.user.dto.ItemDetail;
+import project.atch.domain.user.dto.ItemDto;
 import project.atch.domain.user.dto.ResponseCharacterDto;
-import project.atch.domain.user.dto.ResponseItemDto;
 import project.atch.domain.user.entity.Character;
 import project.atch.domain.user.entity.User;
 import project.atch.domain.user.repository.CharacterRepository;
@@ -59,13 +59,13 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public ResponseItemDto getAllItems(long userId){
+    public ItemDto.Res getAllItems(long userId){
         User user = userRepository.findById(userId).orElseThrow();
         List<ItemDetail> items = userItemRepository.findItemIdsAndImagesByUserId(userId).stream()
                 .map(result -> new ItemDetail((Long) result[0], (String) result[1]))
                 .collect(Collectors.toList());
 
-        return new ResponseItemDto(user.getCharacter(), items);
+        return new ItemDto.Res(user.getCharacter(), items);
     }
 
     @Transactional
