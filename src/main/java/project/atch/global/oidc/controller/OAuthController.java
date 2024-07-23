@@ -1,5 +1,6 @@
 package project.atch.global.oidc.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +13,7 @@ import project.atch.global.oidc.service.OAuthService;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "로그인 API")
 public class OAuthController {
 
     private final OAuthService oAuthService;

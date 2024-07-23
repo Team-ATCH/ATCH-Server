@@ -6,6 +6,8 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
+
+import project.atch.domain.user.dto.ItemDetail;
 import project.atch.domain.user.entity.Item;
 import project.atch.domain.user.entity.User;
 import project.atch.domain.user.entity.UserItem;
@@ -17,10 +19,16 @@ import org.springframework.data.jpa.repository.Query;
 public interface UserItemRepository extends JpaRepository<UserItem, UserItemId> {
     Optional<UserItem> findByUserAndItem(User user, Item item);
 
-    Optional<UserItem> findByUserAndUsed(User user, boolean used);
+    boolean existsByUserAndItem(User user, Item item);
+
     @Query("SELECT ui FROM UserItem ui WHERE ui.user.id = :userId AND ui.item.id = :itemId")
     Optional<UserItem> findByUserIdAndItemId(@Param("userId") Long userId, @Param("itemId") Long itemId);
 
-    @Query("SELECT i.id, i.image FROM UserItem ui JOIN ui.item i WHERE ui.user.id = :userId")
-    List<Object[]> findItemIdsAndImagesByUserId(@Param("userId") Long userId);
+    @Query("SELECT CASE WHEN COUNT(ui) > 0 THEN true ELSE false END FROM UserItem ui WHERE ui.user.id = :userId AND ui.item.id = :itemId")
+    boolean existsByUserIdAndItemId(@Param("userId") Long userId, @Param("itemId") Long itemId);
+
+
+    @Query("SELECT new project.atch.domain.user.dto.ItemDetail(i.id, i.image) " +
+            "FROM UserItem ui JOIN ui.item i WHERE ui.user.id = :userId")
+    List<ItemDetail> findItemIdsAndImagesByUserId(@Param("userId") Long userId);
 }

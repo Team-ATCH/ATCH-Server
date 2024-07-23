@@ -5,4 +5,5 @@ import org.springframework.stereotype.Repository;
 import project.atch.domain.user.entity.Item;
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Long> {
+    boolean existsById(Long id);
 }

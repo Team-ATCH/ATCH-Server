@@ -3,12 +3,11 @@ package project.atch.domain.user.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import project.atch.domain.user.dto.ItemDetail;
+import project.atch.domain.user.dto.ItemDto;
 import project.atch.domain.user.dto.ResponseCharacterDto;
-import project.atch.domain.user.dto.ResponseItemDto;
 import project.atch.domain.user.entity.Character;
-import project.atch.domain.user.entity.Item;
 import project.atch.domain.user.entity.User;
-import project.atch.domain.user.entity.UserItem;
 import project.atch.domain.user.repository.CharacterRepository;
 import project.atch.domain.user.repository.ItemRepository;
 import project.atch.domain.user.repository.UserItemRepository;
@@ -17,7 +16,6 @@ import project.atch.global.exception.CustomException;
 import project.atch.global.exception.ErrorCode;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -61,27 +59,31 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public ResponseItemDto getAllItems(long userId){
+    public ItemDto.Res getAllItems(long userId){
         User user = userRepository.findById(userId).orElseThrow();
-        List<Object[]> results = userItemRepository.findItemIdsAndImagesByUserId(userId);
-        Map<Long, String> items = results.stream()
-                .collect(Collectors.toMap(
-                        result -> (Long) result[0],
-                        result -> (String) result[1]
-                ));
-        return new ResponseItemDto(user.getCharacter().getImage(), items,
-                user.getCharacter().getItemX(), user.getCharacter().getItemY());
+        List<ItemDetail> items = userItemRepository.findItemIdsAndImagesByUserId(userId);
 
+        return new ItemDto.Res(user.getCharacter(), items);
     }
 
     @Transactional
-    public void updateItem(long userId, long itemId) {
+    public void updateItems(long userId, Long itemId1, Long itemId2, Long itemId3) {
         User user = userRepository.findById(userId).orElseThrow();
-        Item item = itemRepository.findById(itemId).orElseThrow();
-        UserItem used = userItemRepository.findByUserAndUsed(user, true).orElseThrow();// 현재 착용중인 아이템
-        UserItem newOne = userItemRepository.findByUserAndItem(user, item).orElseThrow(); // 착용할 아이템
 
-        used.switchedUsed(false);
-        newOne.switchedUsed(true);
+        // 각 아이템 아이디를 검사하고 사용자가 보유한 아이템인지 확인하여 업데이트할 아이템 아이디를 결정
+        Long updatedItemId1 = validateItem(userId, itemId1);
+        Long updatedItemId2 = validateItem(userId, itemId2);
+        Long updatedItemId3 = validateItem(userId, itemId3);
+
+        // 사용자 엔티티를 업데이트
+        user.updateItems(updatedItemId1, updatedItemId2, updatedItemId3);
+    }
+
+    private Long validateItem(long userId, Long itemId) {
+        if (itemId != null && itemRepository.existsById(itemId) && userItemRepository.existsByUserIdAndItemId(userId, itemId)) {
+            return itemId; // 만족하는 경우 해당 아이템 아이디를 반환
+        } else {
+            return null; // 만족하지 않는 경우 null을 반환
+        }
     }
 }

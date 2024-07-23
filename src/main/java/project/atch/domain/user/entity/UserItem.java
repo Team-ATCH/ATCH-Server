@@ -22,17 +22,11 @@ public class UserItem {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
     private Item item;
-    private boolean used;
 
     @Builder
     public UserItem(User user, Item item, boolean used) {
         this.user = user;
         this.item = item;
-        this.used = used;
-    }
-
-    public void switchedUsed(boolean flag){
-        used = flag;
     }
 
 }
