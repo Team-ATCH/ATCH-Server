@@ -25,32 +25,36 @@ public class HomeService {
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
 
-    // TODO 리팩토링
     @Transactional(readOnly = true)
-    public List<UserDetailDto> getUsersDetail(){
-        List<UserDetailDto> list = new ArrayList<>();
+    public List<UserDetailDto> getUsersDetail() {
         List<User> users = userRepository.findAllByLocationPermissionTrue();
-        for(User user: users){
-            if (user.isInHongdae()){
-                Long[] itemIds = {user.getItemId1(), user.getItemId2(), user.getItemId3()};
+        return users.stream()
+                .filter(User::isInHongdae)
+                .map(this::mapToUserDetailDto)
+                .collect(Collectors.toList());
+    }
 
-                List<ItemDetail> items = Arrays.stream(itemIds)
-                        .map(itemId -> {
-                            if (itemId != null) {
-                                Optional<Item> item = itemRepository.findById(itemId);
-                                if (item != null) {
-                                    return new ItemDetail(item.get().getId(), item.get().getImage());
-                                }
-                            }
-                            return new ItemDetail(null, null);
-                        })
-                        .collect(Collectors.toList());
+    private UserDetailDto mapToUserDetailDto(User user) {
+        List<ItemDetail> items = getItemDetails(user);
+        return new UserDetailDto(user, user.getCharacter(), items);
+    }
 
-                UserDetailDto userDetailDto = new UserDetailDto(user, user.getCharacter(), items);
-                list.add(userDetailDto);
+    private List<ItemDetail> getItemDetails(User user) {
+        Long[] itemIds = {user.getItemId1(), user.getItemId2(), user.getItemId3()};
+
+        return Arrays.stream(itemIds)
+                .map(this::findItemDetailById)
+                .collect(Collectors.toList());
+    }
+
+    private ItemDetail findItemDetailById(Long itemId) {
+        if (itemId != null) {
+            Optional<Item> item = itemRepository.findById(itemId);
+            if (item.isPresent()) {
+                return new ItemDetail(item.get().getId(), item.get().getImage());
             }
         }
-        return list;
+        return new ItemDetail(null, null);
     }
 
     @Transactional

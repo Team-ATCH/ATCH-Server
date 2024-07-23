@@ -61,9 +61,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public ItemDto.Res getAllItems(long userId){
         User user = userRepository.findById(userId).orElseThrow();
-        List<ItemDetail> items = userItemRepository.findItemIdsAndImagesByUserId(userId).stream()
-                .map(result -> new ItemDetail((Long) result[0], (String) result[1]))
-                .collect(Collectors.toList());
+        List<ItemDetail> items = userItemRepository.findItemIdsAndImagesByUserId(userId);
 
         return new ItemDto.Res(user.getCharacter(), items);
     }

@@ -6,6 +6,8 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
+
+import project.atch.domain.user.dto.ItemDetail;
 import project.atch.domain.user.entity.Item;
 import project.atch.domain.user.entity.User;
 import project.atch.domain.user.entity.UserItem;
@@ -26,6 +28,7 @@ public interface UserItemRepository extends JpaRepository<UserItem, UserItemId> 
     boolean existsByUserIdAndItemId(@Param("userId") Long userId, @Param("itemId") Long itemId);
 
 
-    @Query("SELECT i.id, i.image FROM UserItem ui JOIN ui.item i WHERE ui.user.id = :userId")
-    List<Object[]> findItemIdsAndImagesByUserId(@Param("userId") Long userId);
+    @Query("SELECT new project.atch.domain.user.dto.ItemDetail(i.id, i.image) " +
+            "FROM UserItem ui JOIN ui.item i WHERE ui.user.id = :userId")
+    List<ItemDetail> findItemIdsAndImagesByUserId(@Param("userId") Long userId);
 }
