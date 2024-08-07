@@ -1,6 +1,7 @@
 package project.atch.domain.room.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,6 +13,9 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @Entity
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"fromId", "toId"})
+})
 public class Room extends BaseEntity {
 
     @Id
@@ -19,17 +23,24 @@ public class Room extends BaseEntity {
     @Column(name = "room_id")
     private Long id;
 
-    /**
-     * fromId와 toId에 unique 제약조건
-     */
+    @NotNull
+    @Column(nullable = false)
     private Long fromId;
 
+    @NotNull
+    @Column(nullable = false)
     private Long toId;
 
     @Builder
     public Room(Long fromId, Long toId){
-        this.fromId = fromId;
-        this.toId = toId;
+        // 항상 fromId < toId로 설정
+        if (fromId > toId) {
+            this.fromId = toId;
+            this.toId = fromId;
+        } else {
+            this.fromId = fromId;
+            this.toId = toId;
+        }
     }
 
 }
