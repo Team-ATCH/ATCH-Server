@@ -1,6 +1,7 @@
 package project.atch.domain.user.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,10 +10,13 @@ import project.atch.global.entity.BaseEntity;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 
-// unique 제약 조건; oAuthProvider + email, nickname
 @Entity
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "user", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"email", "oAuthProvider"}),
+        @UniqueConstraint(columnNames = {"nickname"})
+})
 public class User extends BaseEntity {
 
     @Id
@@ -20,7 +24,12 @@ public class User extends BaseEntity {
     @Column(name = "user_id")
     private Long id;
 
+    @NotNull
+    @Column(nullable = false)
     private String email;
+
+    @NotNull
+    @Column(nullable = false)
     private String nickname;
     private String hashTag;
 
@@ -29,8 +38,9 @@ public class User extends BaseEntity {
     private Double longitude; // 경도
 
 
+    @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "char(5)")
+    @Column(columnDefinition = "char(5)", nullable = false)
     private OAuthProvider oAuthProvider;
 
     @Enumerated(EnumType.STRING)
@@ -64,13 +74,6 @@ public class User extends BaseEntity {
 
     public void updateNickname(String nickname){
         this.nickname = nickname;
-    }
-    public boolean isInHongdae(){
-        // TODO 임의로 위도 경도 지정. 기획 측에 문의해봐야함.
-        if (37.546856 <= latitude && latitude <= 37.566418 && 126.907221 <= longitude && longitude <= 126.933994){
-            return true;
-        }
-        return false;
     }
 
     public void updateLocation(double latitude, double longitude){
