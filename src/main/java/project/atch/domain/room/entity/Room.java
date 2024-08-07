@@ -1,6 +1,7 @@
 package project.atch.domain.room.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,8 +23,12 @@ public class Room extends BaseEntity {
     @Column(name = "room_id")
     private Long id;
 
+    @NotNull
+    @Column(nullable = false)
     private Long fromId;
 
+    @NotNull
+    @Column(nullable = false)
     private Long toId;
 
     @Builder
