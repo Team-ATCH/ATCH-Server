@@ -23,38 +23,16 @@ import java.util.stream.Collectors;
 public class HomeService {
 
     private final UserRepository userRepository;
-    private final ItemRepository itemRepository;
 
     @Transactional(readOnly = true)
     public List<UserDetailDto> getUsersDetail() {
-        List<User> users = userRepository.findAllByLocationPermissionTrue();
-        return users.stream()
-                .filter(User::isInHongdae)
-                .map(this::mapToUserDetailDto)
-                .collect(Collectors.toList());
-    }
 
-    private UserDetailDto mapToUserDetailDto(User user) {
-        List<ItemDetail> items = getItemDetails(user);
-        return new UserDetailDto(user, user.getCharacter(), items);
-    }
+        double latMin = 37.546856;
+        double latMax = 37.566418;
+        double lonMin = 126.907221;
+        double lonMax = 126.933994;
 
-    private List<ItemDetail> getItemDetails(User user) {
-        Long[] itemIds = {user.getItemId1(), user.getItemId2(), user.getItemId3()};
-
-        return Arrays.stream(itemIds)
-                .map(this::findItemDetailById)
-                .collect(Collectors.toList());
-    }
-
-    private ItemDetail findItemDetailById(Long itemId) {
-        if (itemId != null) {
-            Optional<Item> item = itemRepository.findById(itemId);
-            if (item.isPresent()) {
-                return new ItemDetail(item.get().getId(), item.get().getImage());
-            }
-        }
-        return new ItemDetail(null, null);
+        return userRepository.findUsersWithItems(latMin, latMax, lonMin, lonMax);
     }
 
     @Transactional
