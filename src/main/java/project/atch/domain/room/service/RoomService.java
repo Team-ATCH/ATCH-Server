@@ -33,32 +33,36 @@ public class RoomService {
     private final ChatRepository chatRepository;
 
     // 채팅방 생성
-    // TODO 메서드 분리
     @Transactional
     public ResponseEntity<RoomFormDto.Res> createRoom(Long fromId, Long toId) {
         User toUser = userRepository.findById(toId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_INFORMATION_NOT_FOUND));
-
-        // 있는지 확인
-        Optional<Room> first = roomRepository.findByFromIdAndToId(fromId, toId);
-        if (first.isPresent()) {
-            Room room = first.get();
-            return new ResponseEntity(new RoomFormDto.Res(room.getId(), fromId, toId), HttpStatus.OK);
+        // 아이디 정렬하기
+        if(toId < fromId){
+            Long tmp = fromId;
+            fromId = toId;
+            toId = tmp;
         }
 
-        Optional<Room> second = roomRepository.findByFromIdAndToId(toId, fromId);
-        if (second.isPresent()){
-            Room room = second.get();
+        // 있는지 확인
+        Optional<Room> existingRoom = roomRepository.findByFromIdAndToId(fromId, toId);
+        if (existingRoom.isPresent()) {
+            Room room = existingRoom.get();
             return new ResponseEntity(new RoomFormDto.Res(room.getId(), fromId, toId), HttpStatus.OK);
         }
 
         // 이미 존재하는 채팅방이 없다면 생성 후 리턴
+        Room room = createAndSaveRoom(fromId, toId);
+        log.info("[RoomService-createRoom] {}, {} room 엔티티 생성" ,fromId, toUser.getId());
+        return new ResponseEntity(new RoomFormDto.Res(room.getId(), fromId, toId), HttpStatus.CREATED);
+    }
+
+    private Room createAndSaveRoom(Long fromId, Long toId) {
         Room room = Room.builder()
                 .fromId(fromId)
-                .toId(toUser.getId()).build();
-        Room savedRoom = roomRepository.save(room);
-        log.info("[RoomService-createRoom] {}, {} room 엔티티 생성" ,fromId, toUser.getId());
-        return new ResponseEntity(new RoomFormDto.Res(savedRoom.getId(), fromId, toId), HttpStatus.CREATED);
+                .toId(toId)
+                .build();
+        return roomRepository.save(room);
     }
 
     // 모든 채팅방 찾기
