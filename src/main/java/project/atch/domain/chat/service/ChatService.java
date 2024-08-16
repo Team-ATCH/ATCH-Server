@@ -17,6 +17,7 @@ import project.atch.domain.user.entity.User;
 import project.atch.domain.user.repository.UserRepository;
 import project.atch.global.exception.CustomException;
 import project.atch.global.exception.ErrorCode;
+import project.atch.global.stomp.RoomUserCountManager;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -31,12 +32,16 @@ public class ChatService {
     private final ChatRepository chatRepository;
     private final RoomRepository roomRepository;
     private final UserRepository userRepository;
+    private final RoomUserCountManager countManager;
     private final SimpMessageSendingOperations template;
 
     @Transactional
     public Mono<Chat> saveChatMessage(Long roomId, String content, Long fromUserId) {
+        boolean read = false;
+        if (countManager.getUserCount(roomId) == 2) read = true;
+
         return chatRepository.save(
-                new Chat(roomId, content, fromUserId, new Date()));
+                new Chat(roomId, content, fromUserId, new Date(), read));
     }
 
     public Mono<Chat> processMessage(Long roomId, String content, Long userId) {
@@ -55,8 +60,8 @@ public class ChatService {
 
 
 
-    public void sendMessageToSubscribers(Long roomId, String content) {
-        template.convertAndSend("/sub/messages/" + roomId, content);
+    public void sendMessageToSubscribers(Long roomId, Chat savedChat) {
+        template.convertAndSend("/sub/messages/" + roomId, savedChat);
     }
 
 

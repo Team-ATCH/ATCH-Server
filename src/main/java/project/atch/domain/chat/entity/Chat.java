@@ -29,11 +29,11 @@ public class Chat{
 
     private boolean read;
 
-    public Chat(Long roomId, String content, Long fromId, Date date) {
+    public Chat(Long roomId, String content, Long fromId, Date date, boolean read) {
         this.roomId = roomId;
         this.content = content;
         this.fromId = fromId;
         this.createdAt = date;
-        this.read = false;
+        this.read = read;
     }
 }

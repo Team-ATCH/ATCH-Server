@@ -44,9 +44,9 @@ public class ChatController {
         Long userId = (Long) sessionAttributes.get("userId");
 
         return chatService.processMessage(roomId, chat.content(), userId)
-                .flatMap(message -> {
+                .flatMap(savedChat -> {
                     // 메시지를 해당 채팅방 구독자들에게 전송
-                    chatService.sendMessageToSubscribers(roomId, chat.content());
+                    chatService.sendMessageToSubscribers(roomId, savedChat);
                     return Mono.just(ResponseEntity.ok().build());
                 });
     }
