@@ -34,8 +34,9 @@ public class ChatController {
 
     //메세지 송신 및 수신
     @MessageMapping("/messages/{roomId}")
-    public Mono<ResponseEntity<Void>> receiveMessage(@DestinationVariable Long roomId, @RequestBody @Valid MessageDto.Req chat, SimpMessageHeaderAccessor headerAccessor) {
-
+    public Mono<ResponseEntity<Void>> receiveMessage(@DestinationVariable Long roomId,
+                                                     @RequestBody @Valid MessageDto.Req chat,
+                                                     SimpMessageHeaderAccessor headerAccessor) {
         // 세션에서 사용자 ID 가져오기
         Map<String, Object> sessionAttributes = headerAccessor.getSessionAttributes();
         if (sessionAttributes == null) {
@@ -43,12 +44,8 @@ public class ChatController {
         }
         Long userId = (Long) sessionAttributes.get("userId");
 
-        return chatService.processMessage(roomId, chat.content(), userId)
-                .flatMap(message -> {
-                    // 메시지를 해당 채팅방 구독자들에게 전송
-                    chatService.sendMessageToSubscribers(roomId, chat.content());
-                    return Mono.just(ResponseEntity.ok().build());
-                });
+        return chatService.handleMessage(roomId, chat.content(), userId)
+                .map(savedChat -> ResponseEntity.ok().build());
     }
 
     @Operation(summary = "특정 채팅방의 모든 채팅 내용 조회",

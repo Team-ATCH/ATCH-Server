@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.stereotype.Component;
@@ -22,25 +21,42 @@ public class StompPreHandler implements ChannelInterceptor {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
+    private final RoomUserCountManager roomUserCountManager;
 
-    // websocket을 통해 들어온 요청이 처리 되기전 실행된다.
-    // token에서 user를 식별해 session에 userid, nickname을 넣는다.
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 
-        if (accessor != null && StompCommand.CONNECT == accessor.getCommand()) {
-            String email = getEmail(accessor);
-            if (email != null){
-                User user = userRepository.findByEmail(email).orElseThrow();
-                setSessionAttributes(accessor, user.getId(), user.getNickname());
+        if (accessor == null) return message;
 
-                log.info("[StomptPreHandler-preSend] connect: " + user.getId());
-                return message;
-            }
+        switch (accessor.getCommand()){
+            case CONNECT:
+                handleConnect(accessor);
+                break;
+            case SUBSCRIBE:
+                handleSubscribe(accessor);
+                break;
         }
 
         return message;
+    }
+
+    private void handleConnect(StompHeaderAccessor accessor) {
+        String email = getEmail(accessor);
+        if (email != null) {
+            User user = userRepository.findByEmail(email).orElseThrow();
+            setSessionAttributes(accessor, user.getId(), user.getNickname());
+            log.info("[StompPreHandler-preSend] connect: " + user.getId());
+        }
+    }
+
+    private void handleSubscribe(StompHeaderAccessor accessor) {
+        String destination = accessor.getFirstNativeHeader("destination");
+        if (destination != null) {
+            long roomId = Long.parseLong(destination.substring(destination.lastIndexOf('/') + 1));
+            roomUserCountManager.incrementUserCount(roomId);
+            log.info("[StompPreHandler-preSend] subscribe: {}번방에 {}명", roomId, roomUserCountManager.getUserCount(roomId));
+        }
     }
 
     private String getEmail(StompHeaderAccessor accessor){

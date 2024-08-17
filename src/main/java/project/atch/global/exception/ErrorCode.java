@@ -28,7 +28,8 @@ public enum ErrorCode {
 
     /* 500 Internal Server Error */
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 측에 문제가 생겼습니다."),
-    QUERY_EXECUTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "데이터베이스 쿼리 실행 중 실패하였습니다.");
+    QUERY_EXECUTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "데이터베이스 쿼리 실행 중 실패하였습니다."),
+    FCM_SERVER_COMMUNICATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FCM 서버 연결에 실패하였습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

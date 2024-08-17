@@ -18,6 +18,7 @@ import project.atch.domain.room.service.RoomService;
 import project.atch.global.exception.CustomException;
 import project.atch.global.exception.ErrorCode;
 import project.atch.global.security.CustomUserDetails;
+import project.atch.global.stomp.RoomUserCountManager;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -30,6 +31,7 @@ import java.util.List;
 public class RoomController {
 
     private final RoomService roomService;
+    private final RoomUserCountManager countManager;
 
     @Operation(summary = "채팅방 등록",
             description = "채팅하려는 사용자의 아이디을 받아 새로운 채팅방의 아이디를 생성합니다.",
@@ -59,6 +61,13 @@ public class RoomController {
         return roomService.getAllRoomsWithPreviews(limit, lastId)
                 .collectList()
                 .map(ResponseEntity::ok);
+    }
+
+    @Operation(summary = "채팅방 비활성화",
+            description = "사용자가 접속하고 있던 채팅방을 나갔을 때 웹소켓이 종료된 상태를 알려야합니다.")
+    @DeleteMapping("{roomId}/leave")
+    public void leaveRoom(@PathVariable Long roomId){
+        countManager.decrementUserCount(roomId);
     }
 
 }
