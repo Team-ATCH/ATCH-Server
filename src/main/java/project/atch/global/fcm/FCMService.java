@@ -30,8 +30,8 @@ public class FCMService {
     private String SERVICE_ACCOUNT_JSON;
     @Value("${fcm.api.url}")
     private String FCM_API_URL;
-    @Value("${fcm.topic}")
-    private String topic;
+//    @Value("${fcm.topic}")
+//    private String topic;
 
     /**
      * 단일 기기
@@ -84,7 +84,7 @@ public class FCMService {
                 .fromStream(new ClassPathResource(SERVICE_ACCOUNT_JSON).getInputStream())
                 .createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
         googleCredentials.refreshIfExpired();
-        log.info("getAccessToken() - googleCredentials: {} ", googleCredentials.getAccessToken().getTokenValue());
+        log.info("[FCMService] getAccessToken() googleCredentials: {} ", googleCredentials.getAccessToken().getTokenValue());
 
         return googleCredentials.getAccessToken().getTokenValue();
 

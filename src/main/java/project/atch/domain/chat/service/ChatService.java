@@ -1,5 +1,6 @@
 package project.atch.domain.chat.service;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.Optional;
 
@@ -17,6 +18,8 @@ import project.atch.domain.user.entity.User;
 import project.atch.domain.user.repository.UserRepository;
 import project.atch.global.exception.CustomException;
 import project.atch.global.exception.ErrorCode;
+import project.atch.global.fcm.FCMPushRequestDto;
+import project.atch.global.fcm.FCMService;
 import project.atch.global.stomp.RoomUserCountManager;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -34,31 +37,52 @@ public class ChatService {
     private final UserRepository userRepository;
     private final RoomUserCountManager countManager;
     private final SimpMessageSendingOperations template;
+    private final FCMService fcmService;
+
+    @Transactional
+    public Mono<Void> handleMessage(Long roomId, String content, Long userId) {
+        return validateRoom(roomId, userId)
+                .flatMap(room -> saveChatMessage(roomId, content, userId))
+                .flatMap(savedChat -> {
+                    int userCount = countManager.getUserCount(roomId);
+
+                    // 사용자 인원에 따른 처리 분기
+                    if (userCount == 2) {
+                        // 사용자 인원이 2명인 경우 메시지 전송
+                        sendMessageToSubscribers(roomId, savedChat);
+                    } else if (userCount == 1) {
+                        // 사용자 인원이 1명인 경우 FCM 알람 전송
+                        FCMPushRequestDto dto = FCMPushRequestDto.makeChatAlarm(savedChat.getContent(), savedChat.getContent());// 임시임
+                        try {
+                            fcmService.pushAlarm(dto);
+                        } catch (IOException e) {
+                            return Mono.error(new CustomException(ErrorCode.FCM_SERVER_COMMUNICATION_FAILED));
+                        }
+                    }
+
+                    return Mono.empty();
+                });
+    }
+
+    private Mono<Room> validateRoom(Long roomId, Long userId) {
+        return Mono.fromCallable(() -> {
+            Room room = roomRepository.findById(roomId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.ROOM_NOT_FOUND));
+
+            if (room.getFromId() != userId && room.getToId() != userId) {
+                throw new CustomException(ErrorCode.ROOM_NOT_FOUND);
+            }
+            return room;
+        });
+    }
 
     @Transactional
     public Mono<Chat> saveChatMessage(Long roomId, String content, Long fromUserId) {
-        boolean read = false;
-        if (countManager.getUserCount(roomId) == 2) read = true;
+        boolean read = countManager.getUserCount(roomId) == 2;
 
         return chatRepository.save(
                 new Chat(roomId, content, fromUserId, new Date(), read));
     }
-
-    public Mono<Chat> processMessage(Long roomId, String content, Long userId) {
-        return Mono.fromCallable(() -> {
-            // 채팅방에 사용자 있는지 검증
-            Room room = roomRepository.findById(roomId)
-                    .orElseThrow(() -> new CustomException(ErrorCode.ROOM_NOT_FOUND));
-            if (room.getFromId() != userId && room.getToId() != userId) {
-                throw new CustomException(ErrorCode.ROOM_NOT_FOUND);
-            }
-            log.info("[ChatService] 메세지 송신: {}", content);
-
-            return room;
-        }).flatMap(room -> saveChatMessage(roomId, content, userId));
-    }
-
-
 
     public void sendMessageToSubscribers(Long roomId, Chat savedChat) {
         template.convertAndSend("/sub/messages/" + roomId, savedChat);

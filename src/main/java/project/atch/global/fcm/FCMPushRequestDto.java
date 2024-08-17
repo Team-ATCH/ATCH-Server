@@ -21,4 +21,11 @@ public class FCMPushRequestDto {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String image;
+
+    public static FCMPushRequestDto makeChatAlarm(String name, String content){
+        return FCMPushRequestDto.builder()
+                .title(name)
+                .body(content)
+                .build();
+    }
 }
