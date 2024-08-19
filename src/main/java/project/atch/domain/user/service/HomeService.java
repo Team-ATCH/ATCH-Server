@@ -27,10 +27,10 @@ public class HomeService {
     @Transactional(readOnly = true)
     public List<UserDetailDto> getUsersDetail() {
 
-        double latMin = 37.546856;
-        double latMax = 37.566418;
-        double lonMin = 126.907221;
-        double lonMax = 126.933994;
+        double latMin = 37.548264;
+        double latMax = 37.564515;
+        double lonMin = 126.914907;
+        double lonMax = 126.928451;
 
         return userRepository.findUsersWithItems(latMin, latMax, lonMin, lonMax);
     }

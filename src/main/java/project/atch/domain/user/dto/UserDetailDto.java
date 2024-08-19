@@ -20,7 +20,7 @@ public class UserDetailDto {
     // user
     private Long userId;
     private String nickname;
-    private String hashTag;
+    private List<String> hashTag;
     private Double latitude; // 위도
     private Double longitude; // 경도
 
@@ -34,7 +34,7 @@ public class UserDetailDto {
     public UserDetailDto(User user, Character character, Item item1, Item item2, Item item3){
         this.userId = user.getId();
         this.nickname = user.getNickname();
-        this.hashTag = user.getHashTag();
+        this.hashTag = Arrays.asList(user.getHashTag().split(","));
         this.latitude = user.getLatitude(); // 위도
         this.longitude = user.getLongitude(); // 경도
         this.characterImage = character.getImage();
