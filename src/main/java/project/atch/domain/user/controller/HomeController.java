@@ -7,10 +7,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import project.atch.domain.user.dto.RequestLocationDto;
 import project.atch.domain.user.dto.UserDetailDto;
 import project.atch.domain.user.service.HomeService;
@@ -42,7 +39,7 @@ public class HomeController {
                     )
             )
     )
-    @PutMapping("/home/locate")
+    @PatchMapping("/home/locate")
     public void updateUserLocation(@RequestBody @Valid RequestLocationDto dto,
             @AuthenticationPrincipal CustomUserDetails userDetails){
         homeService.updateUserLocation(userDetails.getUserId(), dto.getLatitude(), dto.getLongitude());

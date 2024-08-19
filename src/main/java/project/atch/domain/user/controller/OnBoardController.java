@@ -7,7 +7,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import project.atch.domain.user.dto.*;
+import project.atch.domain.user.dto.RequestCharacterDto;
+import project.atch.domain.user.dto.RequestHashTagDto;
+import project.atch.domain.user.dto.RequestNicknameDto;
+import project.atch.domain.user.dto.ResponseCharacterDto;
 import project.atch.domain.user.service.UserService;
 import project.atch.global.exception.CustomException;
 import project.atch.global.exception.ErrorCode;
@@ -17,11 +20,12 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/users")
-@Tag(name = "마이페이지 API", description = "마이페이지 및 온보딩에 사용되는 사용자 관련 API입니다.")
-public class UserController {
+@RequestMapping("/onboarding")
+@Tag(name = "온보딩 API", description = "온보딩에 사용되는 API입니다.")
+public class OnBoardController {
 
     private final UserService userService;
+
     @Operation(summary = "모든 캐릭터 조회",
             description = "사용자가 캐릭터를 선택할 수 있도록 모든 캐릭터를 조회합니다.")
     @GetMapping("/character")
@@ -38,9 +42,9 @@ public class UserController {
                     )
             )
     )
-    @PatchMapping("/character")
+    @PostMapping("/character")
     public void chooseCharacter(@RequestBody RequestCharacterDto dto,
-            @AuthenticationPrincipal CustomUserDetails userDetails){
+                                @AuthenticationPrincipal CustomUserDetails userDetails){
         if (userDetails == null) throw new CustomException(ErrorCode.TOKEN_VALIDATION_EXCEPTION);
         userService.updateCharacter(userDetails.getUserId(), dto.getCharacterId());
     }
@@ -54,7 +58,7 @@ public class UserController {
                     )
             )
     )
-    @PatchMapping("/hash-tag")
+    @PostMapping("/hash-tag")
     public void chooseHashTag(@RequestBody RequestHashTagDto dto,
                               @AuthenticationPrincipal CustomUserDetails userDetails){
         if (userDetails == null) throw new CustomException(ErrorCode.TOKEN_VALIDATION_EXCEPTION);
@@ -70,33 +74,10 @@ public class UserController {
                     )
             )
     )
-    @PatchMapping("/nickname")
+    @PostMapping("/nickname")
     public void updateNickname(@RequestBody RequestNicknameDto dto,
-                              @AuthenticationPrincipal CustomUserDetails userDetails){
+                               @AuthenticationPrincipal CustomUserDetails userDetails){
         if (userDetails == null) throw new CustomException(ErrorCode.TOKEN_VALIDATION_EXCEPTION);
         userService.updateNickname(userDetails.getUserId(), dto.getNickname());
     }
-
-    @Operation(summary = "모든 아이템 조회",
-            description = "사용자가 아이템을 선택할 수 있도록 보유 중인 아이템을 조회합니다.")
-    @GetMapping("/item")
-    public ItemDto.Res getAllItems(@AuthenticationPrincipal CustomUserDetails userDetails){
-        return userService.getAllItems(userDetails.getUserId());
-    }
-
-    @Operation(summary = "사용자의 아이템 업데이트",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    required = true,
-                    description = "itemId: 아이템의 아이디",
-                    content = @Content(
-                            schema = @Schema(implementation = ItemDto.Req.class)
-                    )
-            )
-    )
-    @PatchMapping("/item")
-    public void updateItem(@RequestBody ItemDto.Req dto,
-                           @AuthenticationPrincipal CustomUserDetails userDetails){
-        userService.updateItems(userDetails.getUserId(), dto.itemId1(), dto.itemId2(), dto.itemId3());
-    }
-
 }
