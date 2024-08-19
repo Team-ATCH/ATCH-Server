@@ -38,8 +38,8 @@ public class UserController {
                     )
             )
     )
-    @PostMapping("/character")
-    public void takeCharacter(@RequestBody RequestCharacterDto dto,
+    @PatchMapping("/character")
+    public void chooseCharacter(@RequestBody RequestCharacterDto dto,
             @AuthenticationPrincipal CustomUserDetails userDetails){
         if (userDetails == null) throw new CustomException(ErrorCode.TOKEN_VALIDATION_EXCEPTION);
         userService.updateCharacter(userDetails.getUserId(), dto.getCharacterId());
@@ -54,7 +54,7 @@ public class UserController {
                     )
             )
     )
-    @PostMapping("/hash-tag")
+    @PatchMapping("/hash-tag")
     public void chooseHashTag(@RequestBody RequestHashTagDto dto,
                               @AuthenticationPrincipal CustomUserDetails userDetails){
         if (userDetails == null) throw new CustomException(ErrorCode.TOKEN_VALIDATION_EXCEPTION);
@@ -70,7 +70,7 @@ public class UserController {
                     )
             )
     )
-    @PostMapping("/nickname")
+    @PatchMapping("/nickname")
     public void updateNickname(@RequestBody RequestNicknameDto dto,
                               @AuthenticationPrincipal CustomUserDetails userDetails){
         if (userDetails == null) throw new CustomException(ErrorCode.TOKEN_VALIDATION_EXCEPTION);
@@ -93,7 +93,7 @@ public class UserController {
                     )
             )
     )
-    @PostMapping("/item")
+    @PatchMapping("/item")
     public void updateItem(@RequestBody ItemDto.Req dto,
                            @AuthenticationPrincipal CustomUserDetails userDetails){
         userService.updateItems(userDetails.getUserId(), dto.itemId1(), dto.itemId2(), dto.itemId3());
