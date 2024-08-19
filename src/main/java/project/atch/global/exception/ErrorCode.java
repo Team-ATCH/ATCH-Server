@@ -26,6 +26,9 @@ public enum ErrorCode {
     ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "잘못된 방을 요청하였습니다."),
     CHARACTER_NOT_FOUND(HttpStatus.NOT_FOUND, "잘못된 캐릭터를 요청하였습니다."),
 
+    /* 409 CONFLICT */
+    DUPLICATE_ENTRY(HttpStatus.CONFLICT, "이미 존재하는 값입니다. 다른 값을 사용해 주세요."),
+
     /* 500 Internal Server Error */
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 측에 문제가 생겼습니다."),
     QUERY_EXECUTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "데이터베이스 쿼리 실행 중 실패하였습니다."),
