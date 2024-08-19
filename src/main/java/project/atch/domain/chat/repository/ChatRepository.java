@@ -16,4 +16,5 @@ public interface ChatRepository extends ReactiveMongoRepository<Chat, String>, C
     @Query("{ 'roomId': ?0, 'fromId': { $ne: ?1 } }")
     Flux<Chat> findAllByRoomIdAndFromIdNot(Long roomId, Long fromId);
 
+    Flux<Chat> findTopByRoomIdOrderByCreatedAtDesc(Long roomId);
 }
