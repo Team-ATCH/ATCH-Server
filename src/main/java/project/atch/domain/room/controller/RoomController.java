@@ -61,7 +61,6 @@ public class RoomController {
     }
 
 
-    // TODO 차단한 상대방 제외
     @Operation(summary = "전체 채팅방 + 미리보기 조회",
             description = "전체 채팅방과 각 채팅방의 첫 번째 채팅 메세지를 확인합니다.\n"
                     +"커서 기반 페이지네이션으로 작동합니다.")

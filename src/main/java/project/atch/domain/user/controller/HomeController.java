@@ -22,7 +22,6 @@ public class HomeController {
 
     private final HomeService homeService;
 
-    // TODO 차단한 상대방 제외
     @Operation(summary = "지도 내 위치하는 모든 사용자 조회",
             description = "현재 홍대 내 위치하는 모든 사용자의 일부 정보를 가져옵니다.")
     @GetMapping("/home")
