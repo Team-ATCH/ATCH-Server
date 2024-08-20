@@ -86,4 +86,10 @@ public class UserService {
             return null; // 만족하지 않는 경우 null을 반환
         }
     }
+
+    @Transactional
+    public void withdrawal(Long userId) {
+        userItemRepository.deleteByUserId(userId);
+        userRepository.deleteById(userId);
+    }
 }
