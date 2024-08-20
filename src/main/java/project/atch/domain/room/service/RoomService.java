@@ -79,7 +79,6 @@ public class RoomService {
         return Flux.fromIterable(rooms)
                 .flatMap(room -> chatRepository.findTopByRoomIdOrderByCreatedAtDesc(room.getId())
                         .flatMap(chat -> {
-                            // User 객체 생성 혹은 조회 (예시로 room에서 유저 객체를 가져오는 것으로 가정)
                             return Mono.just(MyMessagePreviewDto.of(chat, user));
                         })
                 )
