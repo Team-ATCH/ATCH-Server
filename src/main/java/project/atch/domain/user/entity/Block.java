@@ -3,6 +3,7 @@ package project.atch.domain.user.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import project.atch.global.entity.BaseEntity;
@@ -28,4 +29,10 @@ public class Block extends BaseEntity {
     @NotNull
     @Column(nullable = false)
     private Long blockedId; // 차단 당한 사용자 계정
+
+    public Block(Long blockerId, Long blockedId){
+        this.blockerId = blockerId;
+        this.blockedId = blockedId;
+    }
+
 }

@@ -6,12 +6,10 @@ import org.springframework.transaction.annotation.Transactional;
 import project.atch.domain.user.dto.ItemDetail;
 import project.atch.domain.user.dto.ItemDto;
 import project.atch.domain.user.dto.ResponseCharacterDto;
+import project.atch.domain.user.entity.Block;
 import project.atch.domain.user.entity.Character;
 import project.atch.domain.user.entity.User;
-import project.atch.domain.user.repository.CharacterRepository;
-import project.atch.domain.user.repository.ItemRepository;
-import project.atch.domain.user.repository.UserItemRepository;
-import project.atch.domain.user.repository.UserRepository;
+import project.atch.domain.user.repository.*;
 import project.atch.global.exception.CustomException;
 import project.atch.global.exception.ErrorCode;
 
@@ -26,6 +24,7 @@ public class UserService {
     private final CharacterRepository characterRepository;
     private final UserItemRepository userItemRepository;
     private final ItemRepository itemRepository;
+    private final BlockRepository blockRepository;
 
     @Transactional(readOnly = true)
     public List<ResponseCharacterDto> findAllCharacters(){
@@ -91,5 +90,11 @@ public class UserService {
     public void withdrawal(Long userId) {
         userItemRepository.deleteByUserId(userId);
         userRepository.deleteById(userId);
+    }
+
+    @Transactional
+    public void blockUser(Long blockerId, long blockedId) {
+        Block block = new Block(blockerId, blockedId);
+        blockRepository.save(block);
     }
 }

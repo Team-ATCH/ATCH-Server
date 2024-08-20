@@ -109,4 +109,12 @@ public class UserController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
+    @Operation(summary = "특정 사용자를 차단")
+    @PostMapping("/block")
+    public ResponseEntity blockUser(@RequestBody RequestBlockDto dto,
+            @AuthenticationPrincipal CustomUserDetails userDetails){
+        userService.blockUser(userDetails.getUserId(), dto.getUserId());
+        return new ResponseEntity(HttpStatus.CREATED);
+    }
+
 }
