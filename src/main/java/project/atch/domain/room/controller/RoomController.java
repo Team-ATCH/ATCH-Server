@@ -61,6 +61,7 @@ public class RoomController {
     }
 
 
+    // TODO 차단한 상대방 제외
     @Operation(summary = "전체 채팅방 + 미리보기 조회",
             description = "전체 채팅방과 각 채팅방의 첫 번째 채팅 메세지를 확인합니다.\n"
                     +"커서 기반 페이지네이션으로 작동합니다.")
@@ -69,8 +70,10 @@ public class RoomController {
             @Parameter(name = "lastId", description = "마지막 채팅방 아이디")
     })
     @GetMapping
-    public Mono<ResponseEntity<List<OtherMessagePreviewDto>>> findAllRooms(@RequestParam(defaultValue = "10") int limit, @RequestParam(defaultValue = "-1") long lastId){
-        return roomService.getAllRoomsWithPreviews(limit, lastId)
+    public Mono<ResponseEntity<List<OtherMessagePreviewDto>>> findAllRooms(@RequestParam(defaultValue = "10") int limit,
+                                                                           @RequestParam(defaultValue = "-1") long lastId,
+                                                                           @AuthenticationPrincipal CustomUserDetails userDetails){
+        return roomService.getAllRoomsWithPreviews(limit, lastId, userDetails.getUserId())
                 .collectList()
                 .map(ResponseEntity::ok);
     }

@@ -96,5 +96,8 @@ public class UserService {
     public void blockUser(Long blockerId, long blockedId) {
         Block block = new Block(blockerId, blockedId);
         blockRepository.save(block);
+
+        Block reverseBlock = new Block(blockedId, blockerId);
+        blockRepository.save(reverseBlock);
     }
 }

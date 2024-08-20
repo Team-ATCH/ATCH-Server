@@ -14,6 +14,7 @@ import project.atch.domain.room.entity.Room;
 import project.atch.domain.room.dto.RoomFormDto;
 import project.atch.domain.room.repository.RoomRepository;
 import project.atch.domain.user.entity.User;
+import project.atch.domain.user.repository.BlockRepository;
 import project.atch.domain.user.repository.UserRepository;
 import project.atch.global.exception.CustomException;
 import project.atch.global.exception.ErrorCode;
@@ -21,9 +22,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +33,7 @@ public class RoomService {
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
     private final ChatRepository chatRepository;
+    private final BlockRepository blockRepository;
 
     // 채팅방 생성
     @Transactional
@@ -69,10 +70,13 @@ public class RoomService {
 
     @Transactional(readOnly = true)
     public Flux<MyMessagePreviewDto> getAllMyRooms(long userId){
-        // 사용자가 속한 roomId 목록을 조회
+        // 사용자가 속한 roomId 목록을 조회, 차단한 사용자가 속한 roomId는 제외
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_INFORMATION_NOT_FOUND));
-        List<Room> rooms = roomRepository.findByFromIdOrToId(userId, userId);
+        List<Long> blockedId = blockRepository.findBlockedIdsByBlockerId(userId);
+
+        List<Room> rooms = roomRepository.findFilteredRooms(userId, blockedId);
+
         for(Room room: rooms) log.info("{}", room.getId());
 
         // 각 roomId에 해당하는 가장 최신 메시지를 조회
@@ -87,12 +91,15 @@ public class RoomService {
     }
 
     @Transactional(readOnly = true)
-    public Flux<OtherMessagePreviewDto> getAllRoomsWithPreviews(int limit, long lastId) {
+    public Flux<OtherMessagePreviewDto> getAllRoomsWithPreviews(int limit, long lastId, long userId) {
+        // 제외할 사용자 id 조회
+        List<Long> blockedId = getBlockedRoomIds(userId);
+
         // 각 채팅방에서 가장 오래된 메시지를 조회
-        Flux<Chat> chats = chatRepository.findOldestMessagesFromAllRooms(limit, lastId)
+        Flux<Chat> chats = chatRepository.findOldestMessagesFromAllRooms(limit, lastId, blockedId)
                 .subscribeOn(Schedulers.boundedElastic());
 
-        // 각 채팅 메시지에 대해 닉네임을 조회하고, PreviewMessageDto로 변환
+        // 각 채팅 메시지에 대해 닉네임을 조회하고, OtherMessagePreviewDto로 변환
         return chats.flatMap(chatMessage ->
                 Mono.fromCallable(() -> {
                     Optional<User> user = userRepository.findById(chatMessage.getFromId());
@@ -100,6 +107,15 @@ public class RoomService {
                     return OtherMessagePreviewDto.of(chatMessage, nickname);
                 }).subscribeOn(Schedulers.boundedElastic())
         );
+    }
+
+
+    private List<Long> getBlockedRoomIds(Long userId) {
+        // 차단된 사용자 목록을 조회
+        List<Long> blockedIds = blockRepository.findBlockedIdsByBlockerId(userId);
+
+        // 차단된 사용자 ID 목록을 기반으로 방 ID 조회
+        return roomRepository.findRoomIdsByUserIds(blockedIds);
     }
 
 
