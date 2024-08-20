@@ -6,7 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import project.atch.domain.chat.dto.PreviewMessageDto;
+import project.atch.domain.room.dto.MyMessagePreviewDto;
+import project.atch.domain.room.dto.OtherMessagePreviewDto;
 import project.atch.domain.chat.entity.Chat;
 import project.atch.domain.chat.repository.ChatRepository;
 import project.atch.domain.room.entity.Room;
@@ -20,6 +21,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -65,14 +67,27 @@ public class RoomService {
         return roomRepository.save(room);
     }
 
-    // 모든 채팅방 찾기
     @Transactional(readOnly = true)
-    public List<Room> findAllRoom() {
-        return roomRepository.findAll();
+    public Flux<MyMessagePreviewDto> getAllMyRooms(long userId){
+        // 사용자가 속한 roomId 목록을 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_INFORMATION_NOT_FOUND));
+        List<Room> rooms = roomRepository.findByFromIdOrToId(userId, userId);
+        for(Room room: rooms) log.info("{}", room.getId());
+
+        // 각 roomId에 해당하는 가장 최신 메시지를 조회
+        return Flux.fromIterable(rooms)
+                .flatMap(room -> chatRepository.findTopByRoomIdOrderByCreatedAtDesc(room.getId())
+                        .flatMap(chat -> {
+                            return Mono.just(MyMessagePreviewDto.of(chat, user));
+                        })
+                )
+                // 최신순으로 정렬
+                .sort(Comparator.comparing(MyMessagePreviewDto::getCreatedAt).reversed());
     }
 
     @Transactional(readOnly = true)
-    public Flux<PreviewMessageDto> getAllRoomsWithPreviews(int limit, long lastId) {
+    public Flux<OtherMessagePreviewDto> getAllRoomsWithPreviews(int limit, long lastId) {
         // 각 채팅방에서 가장 오래된 메시지를 조회
         Flux<Chat> chats = chatRepository.findOldestMessagesFromAllRooms(limit, lastId)
                 .subscribeOn(Schedulers.boundedElastic());
@@ -82,7 +97,7 @@ public class RoomService {
                 Mono.fromCallable(() -> {
                     Optional<User> user = userRepository.findById(chatMessage.getFromId());
                     String nickname = user.isPresent() ? user.get().getNickname() : "탈퇴한 사용자";
-                    return PreviewMessageDto.of(chatMessage, nickname);
+                    return OtherMessagePreviewDto.of(chatMessage, nickname);
                 }).subscribeOn(Schedulers.boundedElastic())
         );
     }

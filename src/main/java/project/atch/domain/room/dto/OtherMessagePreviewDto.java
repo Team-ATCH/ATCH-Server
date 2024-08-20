@@ -1,4 +1,4 @@
-package project.atch.domain.chat.dto;
+package project.atch.domain.room.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import java.util.Date;
 
 @Getter
 @AllArgsConstructor
-public class PreviewMessageDto {
+public class OtherMessagePreviewDto {
     private Long roomId;
     private String content;
     private Long fromId;
@@ -17,8 +17,8 @@ public class PreviewMessageDto {
     private Date createdAt;
     private Boolean read;
 
-    static public PreviewMessageDto of(Chat chat, String nickname) {
-        return new PreviewMessageDto(chat.getRoomId(), chat.getContent(), chat.getFromId(),
+    static public OtherMessagePreviewDto of(Chat chat, String nickname) {
+        return new OtherMessagePreviewDto(chat.getRoomId(), chat.getContent(), chat.getFromId(),
                 nickname, chat.getCreatedAt(), chat.isRead());
     }
 
