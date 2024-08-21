@@ -21,6 +21,8 @@ public interface UserItemRepository extends JpaRepository<UserItem, UserItemId> 
 
     boolean existsByUserAndItem(User user, Item item);
 
+    void deleteByUserId(Long userId);
+
     @Query("SELECT ui FROM UserItem ui WHERE ui.user.id = :userId AND ui.item.id = :itemId")
     Optional<UserItem> findByUserIdAndItemId(@Param("userId") Long userId, @Param("itemId") Long itemId);
 

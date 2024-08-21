@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import project.atch.domain.user.dto.*;
@@ -22,6 +24,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+
     @Operation(summary = "모든 캐릭터 조회",
             description = "사용자가 캐릭터를 선택할 수 있도록 모든 캐릭터를 조회합니다.")
     @GetMapping("/character")
@@ -97,6 +100,21 @@ public class UserController {
     public void updateItem(@RequestBody ItemDto.Req dto,
                            @AuthenticationPrincipal CustomUserDetails userDetails){
         userService.updateItems(userDetails.getUserId(), dto.itemId1(), dto.itemId2(), dto.itemId3());
+    }
+
+    @Operation(summary = "사용자의 회원 탈퇴")
+    @DeleteMapping()
+    public ResponseEntity withdrawal(@AuthenticationPrincipal CustomUserDetails userDetails){
+        userService.withdrawal(userDetails.getUserId());
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
+    @Operation(summary = "특정 사용자를 차단")
+    @PostMapping("/block")
+    public ResponseEntity blockUser(@RequestBody RequestBlockDto dto,
+            @AuthenticationPrincipal CustomUserDetails userDetails){
+        userService.blockUser(userDetails.getUserId(), dto.getUserId());
+        return new ResponseEntity(HttpStatus.CREATED);
     }
 
 }

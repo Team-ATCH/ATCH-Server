@@ -47,7 +47,7 @@ public class User extends BaseEntity {
     @Column(columnDefinition = "varchar(10)")
     private Role role;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "character_id")
     private Character character;
 

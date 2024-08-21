@@ -12,13 +12,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import project.atch.domain.chat.dto.PreviewMessageDto;
+import project.atch.domain.room.dto.MyMessagePreviewDto;
+import project.atch.domain.room.dto.OtherMessagePreviewDto;
 import project.atch.domain.room.dto.RoomFormDto;
 import project.atch.domain.room.service.RoomService;
-import project.atch.global.exception.CustomException;
-import project.atch.global.exception.ErrorCode;
 import project.atch.global.security.CustomUserDetails;
 import project.atch.global.stomp.RoomUserCountManager;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -49,6 +49,18 @@ public class RoomController {
         return roomService.createRoom(userDetails.getUserId(), form.userId());
     }
 
+    @Operation(summary = "내 채팅",
+            description = "자신이 속한 채팅방과 상대방의 프로필을 확인합니다.")
+    @Parameters({
+            @Parameter(name = "limit", description = "한 페이지 당 몇 개의 데이터를 가져올 지"),
+            @Parameter(name = "lastId", description = "마지막 채팅방 아이디")
+    })
+    @GetMapping("/active")
+    public Flux<MyMessagePreviewDto> findAllMyRooms(@AuthenticationPrincipal CustomUserDetails userDetails){
+        return roomService.getAllMyRooms(userDetails.getUserId());
+    }
+
+
     @Operation(summary = "전체 채팅방 + 미리보기 조회",
             description = "전체 채팅방과 각 채팅방의 첫 번째 채팅 메세지를 확인합니다.\n"
                     +"커서 기반 페이지네이션으로 작동합니다.")
@@ -57,8 +69,10 @@ public class RoomController {
             @Parameter(name = "lastId", description = "마지막 채팅방 아이디")
     })
     @GetMapping
-    public Mono<ResponseEntity<List<PreviewMessageDto>>> findAllRooms(@RequestParam(defaultValue = "10") int limit, @RequestParam(defaultValue = "-1") long lastId){
-        return roomService.getAllRoomsWithPreviews(limit, lastId)
+    public Mono<ResponseEntity<List<OtherMessagePreviewDto>>> findAllRooms(@RequestParam(defaultValue = "10") int limit,
+                                                                           @RequestParam(defaultValue = "-1") long lastId,
+                                                                           @AuthenticationPrincipal CustomUserDetails userDetails){
+        return roomService.getAllRoomsWithPreviews(limit, lastId, userDetails.getUserId())
                 .collectList()
                 .map(ResponseEntity::ok);
     }

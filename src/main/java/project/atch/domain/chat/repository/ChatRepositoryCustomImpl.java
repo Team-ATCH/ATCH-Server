@@ -32,13 +32,18 @@ public class ChatRepositoryCustomImpl implements ChatRepositoryCustom {
     private MongoClient mongoClient;
 
     @Override
-    public Flux<Chat> findOldestMessagesFromAllRooms(int limit, long lastId) {
+    public Flux<Chat> findOldestMessagesFromAllRooms(int limit, long lastId, List<Long> excludedRoomIds) {
         MongoDatabase database = mongoClient.getDatabase("atch");
         MongoCollection<Document> collection = database.getCollection("chat");
 
         List<Bson> pipeline = new ArrayList<>();
         if (lastId > 0L) {
             pipeline.add(Aggregates.match(Filters.lt("roomId", lastId))); // roomId가 targetRoomId보다 작은 채팅방만 선택
+        }
+
+        // 제외할 roomIds 필터링 추가
+        if (excludedRoomIds != null && !excludedRoomIds.isEmpty()) {
+            pipeline.add(Aggregates.match(Filters.nin("roomId", excludedRoomIds))); // 제외할 roomId 리스트
         }
 
         pipeline.add(Aggregates.sort(Sorts.ascending("createdAt"))); // createdAt 필드를 오름차순으로 정렬
