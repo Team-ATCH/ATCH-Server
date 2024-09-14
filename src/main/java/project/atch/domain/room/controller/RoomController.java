@@ -34,14 +34,7 @@ public class RoomController {
     private final RoomUserCountManager countManager;
 
     @Operation(summary = "채팅방 등록",
-            description = "채팅하려는 사용자의 아이디을 받아 새로운 채팅방의 아이디를 생성합니다.",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-            required = true,
-            description = "userId: 채팅 수신 예정의 사용자 이메일",
-            content = @Content(
-                    schema = @Schema(implementation = RoomFormDto.Req.class)
-            )
-    ))
+            description = "채팅하려는 사용자의 아이디을 받아 새로운 채팅방의 아이디를 생성합니다.")
     @PostMapping
     public ResponseEntity<RoomFormDto.Res> createRoom(@RequestBody @Valid RoomFormDto.Req form,
                                                       @AuthenticationPrincipal CustomUserDetails userDetails){
