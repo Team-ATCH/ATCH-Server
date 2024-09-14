@@ -26,7 +26,6 @@ public class ItemService {
     private final UserItemRepository userItemRepository;
     private final FCMService fcmService;
 
-
     public void giveWelcomeItemPerUser(User user){
         String itemName;
         if (user.getId() % 2 == 0){

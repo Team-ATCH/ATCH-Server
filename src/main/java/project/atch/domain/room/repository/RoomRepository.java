@@ -12,6 +12,8 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     Optional<Room> findByFromIdAndToId(Long fromId, Long toId);
     List<Room> findByFromIdOrToId(Long fromId, Long toId);
 
+    int countByFromIdOrToId(Long fromId, Long toId);
+
     @Query("SELECT r FROM Room r WHERE (r.fromId = :userId OR r.toId = :userId) " +
             "AND r.fromId NOT IN :blockedIds AND r.toId NOT IN :blockedIds")
     List<Room> findFilteredRooms(@Param("userId") Long userId, @Param("blockedIds") List<Long> blockedIds);

@@ -13,9 +13,11 @@ import project.atch.domain.chat.repository.ChatRepository;
 import project.atch.domain.room.entity.Room;
 import project.atch.domain.room.dto.RoomFormDto;
 import project.atch.domain.room.repository.RoomRepository;
+import project.atch.domain.user.entity.ItemNumber;
 import project.atch.domain.user.entity.User;
 import project.atch.domain.user.repository.BlockRepository;
 import project.atch.domain.user.repository.UserRepository;
+import project.atch.domain.user.service.ItemService;
 import project.atch.global.exception.CustomException;
 import project.atch.global.exception.ErrorCode;
 import reactor.core.publisher.Flux;
@@ -35,11 +37,16 @@ public class RoomService {
     private final ChatRepository chatRepository;
     private final BlockRepository blockRepository;
 
+    private final ItemService itemService;
+
     // 채팅방 생성
     @Transactional
     public ResponseEntity<RoomFormDto.Res> createRoom(Long fromId, Long toId) {
         User toUser = userRepository.findById(toId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_INFORMATION_NOT_FOUND));
+        User fromUser = userRepository.findById(fromId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_INFORMATION_NOT_FOUND));
+
         // 아이디 정렬하기
         if(toId < fromId){
             Long tmp = fromId;
@@ -57,7 +64,24 @@ public class RoomService {
         // 이미 존재하는 채팅방이 없다면 생성 후 리턴
         Room room = createAndSaveRoom(fromId, toId);
         log.info("[RoomService-createRoom] {}, {} room 엔티티 생성" ,fromId, toUser.getId());
+
+        grantItemsForRoom(fromUser);
+        grantItemsForRoom(toUser);
+
         return new ResponseEntity(new RoomFormDto.Res(room.getId(), fromId, toId), HttpStatus.CREATED);
+    }
+
+    private void grantItemsForRoom(User user){
+        int cnt = roomRepository.countByFromIdOrToId(user.getId(), user.getId());
+
+        switch (cnt){
+            case 5:
+                itemService.giveItem(user, ItemNumber.CHATTERBOX);
+                break;
+            case 10:
+                itemService.giveItem(user, ItemNumber.SOCIAL_BUTTERFLY);
+                break;
+        }
     }
 
     private Room createAndSaveRoom(Long fromId, Long toId) {
