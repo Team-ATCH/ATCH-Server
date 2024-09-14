@@ -8,6 +8,7 @@ import project.atch.domain.user.dto.ItemDto;
 import project.atch.domain.user.dto.ResponseCharacterDto;
 import project.atch.domain.user.entity.Block;
 import project.atch.domain.user.entity.Character;
+import project.atch.domain.user.entity.ItemNumber;
 import project.atch.domain.user.entity.User;
 import project.atch.domain.user.repository.*;
 import project.atch.global.exception.CustomException;
@@ -26,6 +27,8 @@ public class UserService {
     private final ItemRepository itemRepository;
     private final BlockRepository blockRepository;
 
+    private final ItemService itemService;
+
     @Transactional(readOnly = true)
     public List<ResponseCharacterDto> findAllCharacters(){
         return characterRepository.findAll()
@@ -42,6 +45,20 @@ public class UserService {
         Character character = characterRepository.findById(characterId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHARACTER_NOT_FOUND));
         user.updateCharacter(character);
+        user.updateChangeCnt();
+
+        grantItemsForCharacter(user); // 아이템 지급
+    }
+
+    private void grantItemsForCharacter(User user){
+        switch (user.getChangeCnt()){
+            case 1:
+                itemService.giveItem(user, ItemNumber.GRAND_ENTRANCE);
+                break;
+            case 5:
+                itemService.giveItem(user, ItemNumber.ONE_PLUS_ONE);
+                break;
+        }
     }
 
 

@@ -107,5 +107,8 @@ public class User extends BaseEntity {
         this.chatCnt++; // TODO
     }
 
+    public void updateChangeCnt(){
+        this.changeCnt++; // TODO
+    }
 
 }

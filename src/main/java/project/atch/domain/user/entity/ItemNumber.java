@@ -14,7 +14,9 @@ public enum ItemNumber {
     POKE("쿡 찌르기", 5),
     GOOD_IMPRESSION("좋은 인상", 6),
     CHATTERBOX("수다쟁이", 7),
-    SOCIAL_BUTTERFLY("인싸", 8);
+    SOCIAL_BUTTERFLY("인싸", 8),
+    GRAND_ENTRANCE("이 몸 등장", 9),
+    ONE_PLUS_ONE("원 플러스 원", 10);
 
     private final String name;
     private final long value;
