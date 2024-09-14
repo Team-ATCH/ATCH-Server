@@ -58,6 +58,12 @@ public class User extends BaseEntity {
 
     private String fcmToken;
 
+    @Column(columnDefinition = "int default 0")
+    private int chatCnt; // 메세지 보낸 횟수
+
+    @Column(columnDefinition = "int default 0")
+    private int changeCnt; // 캐릭터 바꾼 횟수
+
     @Builder
     private User(OAuthProvider oAuthProvider, String nickname, String email){
         this.oAuthProvider = oAuthProvider;
@@ -96,5 +102,10 @@ public class User extends BaseEntity {
         this.itemId2 = itemId2;
         this.itemId3 = itemId3;
     }
+
+    public void updateChatCnt(){
+        this.chatCnt++; // TODO
+    }
+
 
 }

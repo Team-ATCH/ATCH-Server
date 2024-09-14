@@ -14,6 +14,7 @@ import project.atch.domain.chat.entity.Chat;
 import project.atch.domain.chat.repository.ChatRepository;
 import project.atch.domain.room.entity.Room;
 import project.atch.domain.room.repository.RoomRepository;
+import project.atch.domain.user.entity.ItemNumber;
 import project.atch.domain.user.entity.User;
 import project.atch.domain.user.repository.UserRepository;
 import project.atch.domain.user.service.ItemService;
@@ -55,17 +56,43 @@ public class ChatService {
                         sendMessageToSubscribers(roomId, savedChat);
                     } else if (userCount == 1) {
                         // 사용자 인원이 1명인 경우 FCM 알람 전송
-                        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_INFORMATION_NOT_FOUND));
-                        FCMPushRequestDto dto = FCMPushRequestDto.makeChatAlarm(user.getFcmToken(), savedChat.getContent(), savedChat.getContent());
+                        long toUserId = getAntherId(roomId, userId);
+                        User toUser = userRepository.findById(toUserId).orElseThrow(() -> new CustomException(ErrorCode.USER_INFORMATION_NOT_FOUND));
+                        FCMPushRequestDto dto = FCMPushRequestDto.makeChatAlarm(toUser.getFcmToken(), savedChat.getContent(), savedChat.getContent());
                         try {
                             fcmService.pushAlarm(dto);
                         } catch (IOException e) {
                             return Mono.error(new CustomException(ErrorCode.FCM_SERVER_COMMUNICATION_FAILED));
                         }
                     }
+                    grantItemsForChat(userId);
 
                     return Mono.empty();
                 });
+    }
+
+    private void grantItemsForChat(long userId){
+        // 아이템 지급
+        User fromUser = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_INFORMATION_NOT_FOUND));
+        fromUser.updateChatCnt();
+        switch (fromUser.getChatCnt()){
+            case 1:
+                itemService.giveItem(fromUser, ItemNumber.FIRST_MESSAGE);
+                break;
+            case 5:
+                itemService.giveItem(fromUser, ItemNumber.POKE);
+                break;
+            case 20:
+                itemService.giveItem(fromUser, ItemNumber.GOOD_IMPRESSION);
+        }
+    }
+
+    private long getAntherId(Long roomId, Long userId){
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ROOM_NOT_FOUND));
+
+        if (room.getFromId() != userId) return room.getFromId();
+        return room.getToId();
     }
 
     private Mono<Room> validateRoom(Long roomId, Long userId) {
