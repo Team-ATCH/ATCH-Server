@@ -16,7 +16,9 @@ public enum ItemNumber {
     CHATTERBOX("수다쟁이", 7),
     SOCIAL_BUTTERFLY("인싸", 8),
     GRAND_ENTRANCE("이 몸 등장", 9),
-    ONE_PLUS_ONE("원 플러스 원", 10);
+    ONE_PLUS_ONE("원 플러스 원", 10),
+    THATS_A_BIT("그건 좀", 11),
+    BUG_FIX("오류 제거", 12);
 
     private final String name;
     private final long value;

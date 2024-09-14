@@ -64,6 +64,9 @@ public class User extends BaseEntity {
     @Column(columnDefinition = "int default 0")
     private int changeCnt; // 캐릭터 바꾼 횟수
 
+    @Column(columnDefinition = "int default 0")
+    private int blockCnt; // 차단한 횟수
+
     @Builder
     private User(OAuthProvider oAuthProvider, String nickname, String email){
         this.oAuthProvider = oAuthProvider;
@@ -78,7 +81,6 @@ public class User extends BaseEntity {
                 .nickname(nickname)
                 .email(email).build();
     }
-
 
     public void updateNickname(String nickname){
         this.nickname = nickname;
@@ -110,5 +112,10 @@ public class User extends BaseEntity {
     public void updateChangeCnt(){
         this.changeCnt++; // TODO
     }
+
+    public void updateBlockCnt(){
+        this.blockCnt++; // TODO
+    }
+
 
 }

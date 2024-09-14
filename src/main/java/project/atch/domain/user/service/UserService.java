@@ -117,5 +117,21 @@ public class UserService {
 
         Block reverseBlock = new Block(blockedId, blockerId);
         blockRepository.save(reverseBlock);
+
+        getItemsForBlocking(blockerId); // 아이템 지급
+    }
+
+    private void getItemsForBlocking(long userId){
+        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_INFORMATION_NOT_FOUND));
+        user.updateBlockCnt();
+
+        switch (user.getBlockCnt()){
+            case 1:
+                itemService.giveItem(user, ItemNumber.THATS_A_BIT);
+                break;
+            case 3:
+                itemService.giveItem(user, ItemNumber.BUG_FIX);
+                break;
+        }
     }
 }
