@@ -6,10 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 import project.atch.domain.user.dto.ItemDetail;
 import project.atch.domain.user.dto.ItemDto;
 import project.atch.domain.user.dto.ResponseCharacterDto;
-import project.atch.domain.user.entity.Block;
+import project.atch.domain.user.entity.*;
 import project.atch.domain.user.entity.Character;
-import project.atch.domain.user.entity.ItemNumber;
-import project.atch.domain.user.entity.User;
 import project.atch.domain.user.repository.*;
 import project.atch.global.exception.CustomException;
 import project.atch.global.exception.ErrorCode;
@@ -26,8 +24,7 @@ public class UserService {
     private final UserItemRepository userItemRepository;
     private final ItemRepository itemRepository;
     private final BlockRepository blockRepository;
-
-    private final ItemService itemService;
+    private final NoticeRepository noticeRepository;
 
     @Transactional(readOnly = true)
     public List<ResponseCharacterDto> findAllCharacters(){
@@ -51,12 +48,15 @@ public class UserService {
     }
 
     private void grantItemsForCharacter(User user){
+        Notice notice;
         switch (user.getChangeCnt()){
             case 1:
-                itemService.giveItem(user, ItemNumber.GRAND_ENTRANCE);
+                notice = Notice.of(ItemNumber.GRAND_ENTRANCE, user);
+                noticeRepository.save(notice);
                 break;
             case 5:
-                itemService.giveItem(user, ItemNumber.ONE_PLUS_ONE);
+                notice = Notice.of(ItemNumber.ONE_PLUS_ONE, user);
+                noticeRepository.save(notice);
                 break;
         }
     }
@@ -69,10 +69,9 @@ public class UserService {
     }
 
     @Transactional
-    public User updateNickname(long userId, String nickname){
+    public void updateNickname(long userId, String nickname){
         User user = userRepository.findById(userId).orElseThrow();
         user.updateNickname(nickname);
-        return user;
     }
 
     @Transactional(readOnly = true)
@@ -124,13 +123,15 @@ public class UserService {
     private void getItemsForBlocking(long userId){
         User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_INFORMATION_NOT_FOUND));
         user.updateBlockCnt();
-
+        Notice notice;
         switch (user.getBlockCnt()){
             case 1:
-                itemService.giveItem(user, ItemNumber.THATS_A_BIT);
+                notice = Notice.of(ItemNumber.THATS_A_BIT, user);
+                noticeRepository.save(notice);
                 break;
             case 3:
-                itemService.giveItem(user, ItemNumber.BUG_FIX);
+                notice = Notice.of(ItemNumber.BUG_FIX, user);
+                noticeRepository.save(notice);
                 break;
         }
     }

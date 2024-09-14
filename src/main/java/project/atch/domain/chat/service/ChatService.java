@@ -15,7 +15,9 @@ import project.atch.domain.chat.repository.ChatRepository;
 import project.atch.domain.room.entity.Room;
 import project.atch.domain.room.repository.RoomRepository;
 import project.atch.domain.user.entity.ItemNumber;
+import project.atch.domain.user.entity.Notice;
 import project.atch.domain.user.entity.User;
+import project.atch.domain.user.repository.NoticeRepository;
 import project.atch.domain.user.repository.UserRepository;
 import project.atch.domain.user.service.ItemService;
 import project.atch.global.exception.CustomException;
@@ -37,6 +39,7 @@ public class ChatService {
     private final ChatRepository chatRepository;
     private final RoomRepository roomRepository;
     private final UserRepository userRepository;
+    private final NoticeRepository noticeRepository;
     private final RoomUserCountManager countManager;
     private final SimpMessageSendingOperations template;
 
@@ -75,15 +78,20 @@ public class ChatService {
         // 아이템 지급
         User fromUser = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_INFORMATION_NOT_FOUND));
         fromUser.updateChatCnt();
+        Notice notice;
         switch (fromUser.getChatCnt()){
             case 1:
-                itemService.giveItem(fromUser, ItemNumber.FIRST_MESSAGE);
+                notice = Notice.of(ItemNumber.FIRST_MESSAGE, fromUser);
+                noticeRepository.save(notice);
                 break;
             case 5:
-                itemService.giveItem(fromUser, ItemNumber.POKE);
+                notice = Notice.of(ItemNumber.POKE, fromUser);
+                noticeRepository.save(notice);
                 break;
             case 20:
-                itemService.giveItem(fromUser, ItemNumber.GOOD_IMPRESSION);
+                notice = Notice.of(ItemNumber.GOOD_IMPRESSION, fromUser);
+                noticeRepository.save(notice);
+                break;
         }
     }
 

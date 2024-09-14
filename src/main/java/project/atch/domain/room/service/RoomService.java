@@ -14,10 +14,11 @@ import project.atch.domain.room.entity.Room;
 import project.atch.domain.room.dto.RoomFormDto;
 import project.atch.domain.room.repository.RoomRepository;
 import project.atch.domain.user.entity.ItemNumber;
+import project.atch.domain.user.entity.Notice;
 import project.atch.domain.user.entity.User;
 import project.atch.domain.user.repository.BlockRepository;
+import project.atch.domain.user.repository.NoticeRepository;
 import project.atch.domain.user.repository.UserRepository;
-import project.atch.domain.user.service.ItemService;
 import project.atch.global.exception.CustomException;
 import project.atch.global.exception.ErrorCode;
 import reactor.core.publisher.Flux;
@@ -25,7 +26,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,8 +36,7 @@ public class RoomService {
     private final RoomRepository roomRepository;
     private final ChatRepository chatRepository;
     private final BlockRepository blockRepository;
-
-    private final ItemService itemService;
+    private final NoticeRepository noticeRepository;
 
     // 채팅방 생성
     @Transactional
@@ -73,13 +72,15 @@ public class RoomService {
 
     private void grantItemsForRoom(User user){
         int cnt = roomRepository.countByFromIdOrToId(user.getId(), user.getId());
-
+        Notice notice;
         switch (cnt){
             case 5:
-                itemService.giveItem(user, ItemNumber.CHATTERBOX);
+                notice = Notice.of(ItemNumber.CHATTERBOX, user);
+                noticeRepository.save(notice);
                 break;
             case 10:
-                itemService.giveItem(user, ItemNumber.SOCIAL_BUTTERFLY);
+                notice = Notice.of(ItemNumber.SOCIAL_BUTTERFLY, user);
+                noticeRepository.save(notice);
                 break;
         }
     }

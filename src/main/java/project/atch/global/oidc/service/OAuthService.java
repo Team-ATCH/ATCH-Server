@@ -5,8 +5,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import project.atch.domain.user.entity.ItemNumber;
+import project.atch.domain.user.entity.Notice;
 import project.atch.domain.user.entity.OAuthProvider;
 import project.atch.domain.user.entity.User;
+import project.atch.domain.user.repository.NoticeRepository;
 import project.atch.domain.user.repository.UserRepository;
 import project.atch.global.exception.CustomException;
 import project.atch.global.exception.ErrorCode;
@@ -29,8 +32,10 @@ public class OAuthService {
     private final AppleOauthClient appleOauthClient;
     private final OauthOIDCService oauthOIDCService;
     private final OauthProperties oauthProperties;
-    private final UserRepository userRepository;
     private final JwtTokenProvider tokenProvider;
+
+    private final UserRepository userRepository;
+    private final NoticeRepository noticeRepository;
 
     public ResponseEntity socialLogin(OAuthProvider provider, String request) {
         KakaoTokenResponse token = getKakaoOauthToken(provider, request); // TODO 애플의 IdToken 받는 로직 추후 구현
@@ -50,9 +55,24 @@ public class OAuthService {
         userRepository.save(user);
         String accessToken = tokenProvider.createAccessToken(user.getEmail(), user.getRole().toString());
         SocialLoginResponse socialLoginResponse = toSocialLoginResponse(accessToken);
+
+        grantItemsForWelcome(user);
         return new ResponseEntity<>(socialLoginResponse, HttpStatus.CREATED);
     }
 
+    private void grantItemsForWelcome(User user){
+        Notice noticePerUser;
+        if (user.getId() % 2 != 0){
+            noticePerUser = Notice.of(ItemNumber.LOVELY, user);
+            noticeRepository.save(noticePerUser);
+        } else {
+            noticePerUser = Notice.of(ItemNumber.ONLINE, user);
+            noticeRepository.save(noticePerUser);
+        }
+
+        Notice notice = Notice.of(ItemNumber.PARTY_POPPERS, user);
+        noticeRepository.save(notice);
+    }
 
     private KakaoTokenResponse getKakaoOauthToken(OAuthProvider provider, String code) {
         try {

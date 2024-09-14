@@ -11,9 +11,6 @@ import project.atch.domain.user.dto.RequestCharacterDto;
 import project.atch.domain.user.dto.RequestHashTagDto;
 import project.atch.domain.user.dto.RequestNicknameDto;
 import project.atch.domain.user.dto.ResponseCharacterDto;
-import project.atch.domain.user.entity.ItemNumber;
-import project.atch.domain.user.entity.User;
-import project.atch.domain.user.service.ItemService;
 import project.atch.domain.user.service.UserService;
 import project.atch.global.exception.CustomException;
 import project.atch.global.exception.ErrorCode;
@@ -28,7 +25,6 @@ import java.util.List;
 public class OnBoardController {
 
     private final UserService userService;
-    private final ItemService itemService;
 
     @Operation(summary = "모든 캐릭터 조회",
             description = "사용자가 캐릭터를 선택할 수 있도록 모든 캐릭터를 조회합니다.")
@@ -82,9 +78,7 @@ public class OnBoardController {
     public void updateNickname(@RequestBody RequestNicknameDto dto,
                                @AuthenticationPrincipal CustomUserDetails userDetails){
         if (userDetails == null) throw new CustomException(ErrorCode.TOKEN_VALIDATION_EXCEPTION);
-        User user = userService.updateNickname(userDetails.getUserId(), dto.getNickname());
-        itemService.giveWelcomeItemPerUser(user);
-        itemService.giveItem(user, ItemNumber.PARTY_POPPERS);
+        userService.updateNickname(userDetails.getUserId(), dto.getNickname());
     }
 
 }
