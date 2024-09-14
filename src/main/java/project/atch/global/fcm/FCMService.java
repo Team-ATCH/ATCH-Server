@@ -30,23 +30,19 @@ public class FCMService {
     private String SERVICE_ACCOUNT_JSON;
     @Value("${fcm.api.url}")
     private String FCM_API_URL;
-//    @Value("${fcm.topic}")
-//    private String topic;
 
     /**
      * 단일 기기
      * - Firebase에 메시지를 수신하는 함수 (헤더와 바디 직접 만들기)
      */
     @Transactional
-    public String pushAlarm(FCMPushRequestDto request) throws IOException {
-
+    public void pushAlarm(FCMPushRequestDto request) throws IOException {
         String message = makeSingleMessage(request);
         sendPushMessage(message);
-        return "알림을 성공적으로 전송했습니다. targetUserId = " + request.getTargetToken();
+        log.info("\"알림을 성공적으로 전송했습니다. targetUserId = {}", request.getTargetToken());
     }
 
     private String makeSingleMessage(FCMPushRequestDto request) throws JsonProcessingException {
-
         FCMMessage fcmMessage = FCMMessage.builder()
                 .message(FCMMessage.Message.builder()
                         .token(request.getTargetToken())   // 1:1 전송 시 반드시 필요한 대상 토큰 설정
@@ -63,7 +59,6 @@ public class FCMService {
     }
 
     private void sendPushMessage(String message) throws IOException {
-
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = RequestBody.create(message, MediaType.get("application/json; charset=utf-8"));
         Request httpRequest = new Request.Builder()

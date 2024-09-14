@@ -16,6 +16,7 @@ import project.atch.domain.room.entity.Room;
 import project.atch.domain.room.repository.RoomRepository;
 import project.atch.domain.user.entity.User;
 import project.atch.domain.user.repository.UserRepository;
+import project.atch.domain.user.service.ItemService;
 import project.atch.global.exception.CustomException;
 import project.atch.global.exception.ErrorCode;
 import project.atch.global.fcm.FCMPushRequestDto;
@@ -37,7 +38,9 @@ public class ChatService {
     private final UserRepository userRepository;
     private final RoomUserCountManager countManager;
     private final SimpMessageSendingOperations template;
+
     private final FCMService fcmService;
+    private final ItemService itemService;
 
     @Transactional
     public Mono<Void> handleMessage(Long roomId, String content, Long userId) {
@@ -52,7 +55,8 @@ public class ChatService {
                         sendMessageToSubscribers(roomId, savedChat);
                     } else if (userCount == 1) {
                         // 사용자 인원이 1명인 경우 FCM 알람 전송
-                        FCMPushRequestDto dto = FCMPushRequestDto.makeChatAlarm(savedChat.getContent(), savedChat.getContent());// 임시임
+                        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_INFORMATION_NOT_FOUND));
+                        FCMPushRequestDto dto = FCMPushRequestDto.makeChatAlarm(user.getFcmToken(), savedChat.getContent(), savedChat.getContent());
                         try {
                             fcmService.pushAlarm(dto);
                         } catch (IOException e) {

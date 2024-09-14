@@ -56,6 +56,8 @@ public class User extends BaseEntity {
     private Long itemId2;
     private Long itemId3;
 
+    private String fcmToken;
+
     @Builder
     private User(OAuthProvider oAuthProvider, String nickname, String email){
         this.oAuthProvider = oAuthProvider;

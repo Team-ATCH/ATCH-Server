@@ -24,7 +24,7 @@ public class UserItem {
     private Item item;
 
     @Builder
-    public UserItem(User user, Item item, boolean used) {
+    public UserItem(User user, Item item) {
         this.user = user;
         this.item = item;
     }

@@ -52,9 +52,10 @@ public class UserService {
     }
 
     @Transactional
-    public void updateNickname(long userId, String nickname){
+    public User updateNickname(long userId, String nickname){
         User user = userRepository.findById(userId).orElseThrow();
         user.updateNickname(nickname);
+        return user;
     }
 
     @Transactional(readOnly = true)
