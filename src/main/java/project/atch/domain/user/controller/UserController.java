@@ -83,7 +83,7 @@ public class UserController {
     @Operation(summary = "모든 아이템 조회",
             description = "사용자가 아이템을 선택할 수 있도록 보유 중인 아이템을 조회합니다.")
     @GetMapping("/item")
-    public ItemDto.Res getAllItems(@AuthenticationPrincipal CustomUserDetails userDetails){
+    public ItemDto.ItemRes getAllItems(@AuthenticationPrincipal CustomUserDetails userDetails){
         return userService.getAllItems(userDetails.getUserId());
     }
 
@@ -92,12 +92,12 @@ public class UserController {
                     required = true,
                     description = "itemId: 아이템의 아이디",
                     content = @Content(
-                            schema = @Schema(implementation = ItemDto.Req.class)
+                            schema = @Schema(implementation = ItemDto.ItemReq.class)
                     )
             )
     )
     @PatchMapping("/item")
-    public void updateItem(@RequestBody ItemDto.Req dto,
+    public void updateItem(@RequestBody ItemDto.ItemReq dto,
                            @AuthenticationPrincipal CustomUserDetails userDetails){
         userService.updateItems(userDetails.getUserId(), dto.itemId1(), dto.itemId2(), dto.itemId3());
     }

@@ -74,11 +74,11 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public ItemDto.Res getAllItems(long userId){
+    public ItemDto.ItemRes getAllItems(long userId){
         User user = userRepository.findById(userId).orElseThrow();
         List<ItemDetail> items = userItemRepository.findItemIdsAndImagesByUserId(userId);
 
-        return new ItemDto.Res(user.getCharacter(), items);
+        return new ItemDto.ItemRes(user.getCharacter(), items);
     }
 
     @Transactional
