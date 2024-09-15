@@ -38,7 +38,7 @@ public class RoomService {
 
     // 채팅방 생성
     @Transactional
-    public ResponseEntity<RoomFormDto.Res> createRoom(Long fromId, Long toId) {
+    public ResponseEntity<RoomFormDto.RoomRes> createRoom(Long fromId, Long toId) {
         User toUser = userRepository.findById(toId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_INFORMATION_NOT_FOUND));
         User fromUser = userRepository.findById(fromId)
@@ -55,7 +55,7 @@ public class RoomService {
         Optional<Room> existingRoom = roomRepository.findByFromIdAndToId(fromId, toId);
         if (existingRoom.isPresent()) {
             Room room = existingRoom.get();
-            return new ResponseEntity(new RoomFormDto.Res(room.getId(), fromId, toId), HttpStatus.OK);
+            return new ResponseEntity(new RoomFormDto.RoomRes(room.getId(), fromId, toId), HttpStatus.OK);
         }
 
         // 이미 존재하는 채팅방이 없다면 생성 후 리턴
@@ -65,7 +65,7 @@ public class RoomService {
         grantItemsForRoom(fromUser);
         grantItemsForRoom(toUser);
 
-        return new ResponseEntity(new RoomFormDto.Res(room.getId(), fromId, toId), HttpStatus.CREATED);
+        return new ResponseEntity(new RoomFormDto.RoomRes(room.getId(), fromId, toId), HttpStatus.CREATED);
     }
 
     private void grantItemsForRoom(User user){

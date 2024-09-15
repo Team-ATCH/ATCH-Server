@@ -3,8 +3,6 @@ package project.atch.domain.room.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,8 +34,8 @@ public class RoomController {
     @Operation(summary = "채팅방 등록",
             description = "채팅하려는 사용자의 아이디을 받아 새로운 채팅방의 아이디를 생성합니다.")
     @PostMapping
-    public ResponseEntity<RoomFormDto.Res> createRoom(@RequestBody @Valid RoomFormDto.Req form,
-                                                      @AuthenticationPrincipal CustomUserDetails userDetails){
+    public ResponseEntity<RoomFormDto.RoomRes> createRoom(@RequestBody @Valid RoomFormDto.RoomReq form,
+                                                          @AuthenticationPrincipal CustomUserDetails userDetails){
         // 응답 내려주면 두 사용자는 sub/message/{roomId}로 구독 시작해야함
         return roomService.createRoom(userDetails.getUserId(), form.userId());
     }
