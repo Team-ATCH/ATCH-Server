@@ -51,16 +51,15 @@ public class UserService {
         Notice notice;
         switch (user.getChangeCnt()){
             case 1:
-                notice = Notice.of(ItemNumber.GRAND_ENTRANCE, user);
-                noticeRepository.save(notice);
+                createAndSaveNotice(user, ItemNumber.GRAND_ENTRANCE);
+                grantItem(user, ItemNumber.GRAND_ENTRANCE);
                 break;
             case 5:
-                notice = Notice.of(ItemNumber.ONE_PLUS_ONE, user);
-                noticeRepository.save(notice);
+                createAndSaveNotice(user, ItemNumber.ONE_PLUS_ONE);
+                grantItem(user, ItemNumber.ONE_PLUS_ONE);
                 break;
         }
     }
-
 
     @Transactional
     public void updateHashTag(long userId, List<String> hashTag){
@@ -123,16 +122,27 @@ public class UserService {
     private void getItemsForBlocking(long userId){
         User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_INFORMATION_NOT_FOUND));
         user.updateBlockCnt();
-        Notice notice;
+
         switch (user.getBlockCnt()){
             case 1:
-                notice = Notice.of(ItemNumber.THATS_A_BIT, user);
-                noticeRepository.save(notice);
+                createAndSaveNotice(user, ItemNumber.THATS_A_BIT);
+                grantItem(user, ItemNumber.THATS_A_BIT);
                 break;
             case 3:
-                notice = Notice.of(ItemNumber.BUG_FIX, user);
-                noticeRepository.save(notice);
+                createAndSaveNotice(user, ItemNumber.BUG_FIX);
+                grantItem(user, ItemNumber.BUG_FIX);
                 break;
         }
+    }
+
+    private void createAndSaveNotice(User user, ItemNumber itemNumber) {
+        Notice notice = Notice.of(itemNumber, user);
+        noticeRepository.save(notice);
+    }
+
+    private void grantItem(User user, ItemNumber itemNumber) {
+        Item item = itemRepository.findById(itemNumber.getValue()).orElseThrow();
+        UserItem userItem = new UserItem(user, item);
+        userItemRepository.save(userItem);
     }
 }

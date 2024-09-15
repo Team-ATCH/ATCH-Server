@@ -13,12 +13,8 @@ import project.atch.domain.chat.repository.ChatRepository;
 import project.atch.domain.room.entity.Room;
 import project.atch.domain.room.dto.RoomFormDto;
 import project.atch.domain.room.repository.RoomRepository;
-import project.atch.domain.user.entity.ItemNumber;
-import project.atch.domain.user.entity.Notice;
-import project.atch.domain.user.entity.User;
-import project.atch.domain.user.repository.BlockRepository;
-import project.atch.domain.user.repository.NoticeRepository;
-import project.atch.domain.user.repository.UserRepository;
+import project.atch.domain.user.entity.*;
+import project.atch.domain.user.repository.*;
 import project.atch.global.exception.CustomException;
 import project.atch.global.exception.ErrorCode;
 import reactor.core.publisher.Flux;
@@ -33,6 +29,8 @@ import java.util.*;
 public class RoomService {
 
     private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
+    private final UserItemRepository userItemRepository;
     private final RoomRepository roomRepository;
     private final ChatRepository chatRepository;
     private final BlockRepository blockRepository;
@@ -72,17 +70,28 @@ public class RoomService {
 
     private void grantItemsForRoom(User user){
         int cnt = roomRepository.countByFromIdOrToId(user.getId(), user.getId());
-        Notice notice;
+
         switch (cnt){
             case 5:
-                notice = Notice.of(ItemNumber.CHATTERBOX, user);
-                noticeRepository.save(notice);
+                createAndSaveNotice(user, ItemNumber.CHATTERBOX);
+                grantItem(user, ItemNumber.CHATTERBOX);
                 break;
             case 10:
-                notice = Notice.of(ItemNumber.SOCIAL_BUTTERFLY, user);
-                noticeRepository.save(notice);
+                createAndSaveNotice(user, ItemNumber.SOCIAL_BUTTERFLY);
+                grantItem(user, ItemNumber.SOCIAL_BUTTERFLY);
                 break;
         }
+    }
+
+    private void createAndSaveNotice(User user, ItemNumber itemNumber) {
+        Notice notice = Notice.of(itemNumber, user);
+        noticeRepository.save(notice);
+    }
+
+    private void grantItem(User user, ItemNumber itemNumber) {
+        Item item = itemRepository.findById(itemNumber.getValue()).orElseThrow();
+        UserItem userItem = new UserItem(user, item);
+        userItemRepository.save(userItem);
     }
 
     private Room createAndSaveRoom(Long fromId, Long toId) {

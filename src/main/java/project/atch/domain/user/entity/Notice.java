@@ -24,15 +24,18 @@ public class Notice extends BaseEntity {
 
     private String content;
 
+    private boolean isItem;
+
     @ManyToOne()
     @JoinColumn(name = "user_id")
     private User user;
 
     @Builder
-    public Notice(String title, String content, User user){
+    public Notice(String title, String content, User user, boolean isItem){
         this.title = title;
         this.content = content;
         this.user = user;
+        this.isItem = isItem;
     }
 
     public static Notice of(ItemNumber item, User user){
@@ -42,6 +45,7 @@ public class Notice extends BaseEntity {
                 .title(String.format("'%s' 아이템 도착!", item.getName()))
                 .content(content)
                 .user(user)
+                .isItem(true)
                 .build();
     }
 }
