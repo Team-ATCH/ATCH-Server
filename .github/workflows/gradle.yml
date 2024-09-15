@@ -52,6 +52,10 @@ jobs:
             sudo touch docker-compose.yml
             echo "${{ secrets.DOCKER_COMPOSE }}" | sudo tee docker-compose.yml > /dev/null
 
+            sudo mkdir -p /home/ubuntu/resources/
+            sudo touch /home/ubuntu/resources/firebase-adminsdk.json
+            echo "${{ secrets.FIREBASE_ADMIN_SDK }}" | sudo tee /home/ubuntu/resources/firebase-adminsdk.json > /dev/null
+
             sudo chmod 666 /var/run/docker.sock
             sudo docker rm -f $(sudo docker ps -qa)
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_SERVER }}
