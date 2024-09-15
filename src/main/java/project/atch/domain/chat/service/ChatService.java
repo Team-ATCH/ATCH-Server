@@ -14,8 +14,12 @@ import project.atch.domain.chat.entity.Chat;
 import project.atch.domain.chat.repository.ChatRepository;
 import project.atch.domain.room.entity.Room;
 import project.atch.domain.room.repository.RoomRepository;
-import project.atch.domain.user.entity.User;
+import project.atch.domain.user.entity.*;
+import project.atch.domain.user.repository.ItemRepository;
+import project.atch.domain.user.repository.NoticeRepository;
+import project.atch.domain.user.repository.UserItemRepository;
 import project.atch.domain.user.repository.UserRepository;
+import project.atch.domain.user.service.ItemService;
 import project.atch.global.exception.CustomException;
 import project.atch.global.exception.ErrorCode;
 import project.atch.global.fcm.FCMPushRequestDto;
@@ -35,8 +39,12 @@ public class ChatService {
     private final ChatRepository chatRepository;
     private final RoomRepository roomRepository;
     private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
+    private final UserItemRepository userItemRepository;
+    private final NoticeRepository noticeRepository;
     private final RoomUserCountManager countManager;
     private final SimpMessageSendingOperations template;
+
     private final FCMService fcmService;
 
     @Transactional
@@ -52,16 +60,58 @@ public class ChatService {
                         sendMessageToSubscribers(roomId, savedChat);
                     } else if (userCount == 1) {
                         // 사용자 인원이 1명인 경우 FCM 알람 전송
-                        FCMPushRequestDto dto = FCMPushRequestDto.makeChatAlarm(savedChat.getContent(), savedChat.getContent());// 임시임
+                        long toUserId = getAntherId(roomId, userId);
+                        User toUser = userRepository.findById(toUserId).orElseThrow(() -> new CustomException(ErrorCode.USER_INFORMATION_NOT_FOUND));
+                        FCMPushRequestDto dto = FCMPushRequestDto.makeChatAlarm(toUser.getFcmToken(), savedChat.getContent(), savedChat.getContent());
                         try {
                             fcmService.pushAlarm(dto);
                         } catch (IOException e) {
                             return Mono.error(new CustomException(ErrorCode.FCM_SERVER_COMMUNICATION_FAILED));
                         }
                     }
+                    grantItemsForChat(userId);
 
                     return Mono.empty();
                 });
+    }
+
+    private void grantItemsForChat(long userId){
+        // 아이템 지급
+        User fromUser = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_INFORMATION_NOT_FOUND));
+        fromUser.updateChatCnt();
+        switch (fromUser.getChatCnt()){
+            case 1:
+                createAndSaveNotice(fromUser, ItemNumber.FIRST_MESSAGE);
+                grantItem(fromUser, ItemNumber.FIRST_MESSAGE);
+                break;
+            case 5:
+                createAndSaveNotice(fromUser, ItemNumber.POKE);
+                grantItem(fromUser, ItemNumber.POKE);
+                break;
+            case 20:
+                createAndSaveNotice(fromUser, ItemNumber.GOOD_IMPRESSION);
+                grantItem(fromUser, ItemNumber.GOOD_IMPRESSION);
+                break;
+        }
+    }
+
+    private void createAndSaveNotice(User user, ItemNumber itemNumber) {
+        Notice notice = Notice.of(itemNumber, user);
+        noticeRepository.save(notice);
+    }
+
+    private void grantItem(User user, ItemNumber itemNumber) {
+        Item item = itemRepository.findById(itemNumber.getValue()).orElseThrow();
+        UserItem userItem = new UserItem(user, item);
+        userItemRepository.save(userItem);
+    }
+
+    private long getAntherId(Long roomId, Long userId){
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ROOM_NOT_FOUND));
+
+        if (room.getFromId() != userId) return room.getFromId();
+        return room.getToId();
     }
 
     private Mono<Room> validateRoom(Long roomId, Long userId) {

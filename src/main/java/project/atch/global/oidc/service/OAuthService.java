@@ -5,8 +5,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import project.atch.domain.user.entity.OAuthProvider;
-import project.atch.domain.user.entity.User;
+import project.atch.domain.user.entity.*;
+import project.atch.domain.user.repository.ItemRepository;
+import project.atch.domain.user.repository.NoticeRepository;
+import project.atch.domain.user.repository.UserItemRepository;
 import project.atch.domain.user.repository.UserRepository;
 import project.atch.global.exception.CustomException;
 import project.atch.global.exception.ErrorCode;
@@ -29,8 +31,12 @@ public class OAuthService {
     private final AppleOauthClient appleOauthClient;
     private final OauthOIDCService oauthOIDCService;
     private final OauthProperties oauthProperties;
-    private final UserRepository userRepository;
     private final JwtTokenProvider tokenProvider;
+
+    private final UserRepository userRepository;
+    private final NoticeRepository noticeRepository;
+    private final ItemRepository itemRepository;
+    private final UserItemRepository userItemRepository;
 
     public ResponseEntity socialLogin(OAuthProvider provider, String request) {
         KakaoTokenResponse token = getKakaoOauthToken(provider, request); // TODO 애플의 IdToken 받는 로직 추후 구현
@@ -50,7 +56,33 @@ public class OAuthService {
         userRepository.save(user);
         String accessToken = tokenProvider.createAccessToken(user.getEmail(), user.getRole().toString());
         SocialLoginResponse socialLoginResponse = toSocialLoginResponse(accessToken);
+
+        grantItemsForWelcome(user);
         return new ResponseEntity<>(socialLoginResponse, HttpStatus.CREATED);
+    }
+
+    private void grantItemsForWelcome(User user) {
+        if (user.getId() % 2 != 0) {
+            createAndSaveNotice(user, ItemNumber.LOVELY);
+            grantItem(user, ItemNumber.LOVELY);
+        } else {
+            createAndSaveNotice(user, ItemNumber.ONLINE);
+            grantItem(user, ItemNumber.ONLINE);
+        }
+
+        createAndSaveNotice(user, ItemNumber.PARTY_POPPERS);
+        grantItem(user, ItemNumber.PARTY_POPPERS);
+    }
+
+    private void createAndSaveNotice(User user, ItemNumber itemNumber) {
+        Notice notice = Notice.of(itemNumber, user);
+        noticeRepository.save(notice);
+    }
+
+    private void grantItem(User user, ItemNumber itemNumber) {
+        Item item = itemRepository.findById(itemNumber.getValue()).orElseThrow();
+        UserItem userItem = new UserItem(user, item);
+        userItemRepository.save(userItem);
     }
 
 

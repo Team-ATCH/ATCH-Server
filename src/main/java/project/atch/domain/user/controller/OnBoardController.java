@@ -80,4 +80,5 @@ public class OnBoardController {
         if (userDetails == null) throw new CustomException(ErrorCode.TOKEN_VALIDATION_EXCEPTION);
         userService.updateNickname(userDetails.getUserId(), dto.getNickname());
     }
+
 }

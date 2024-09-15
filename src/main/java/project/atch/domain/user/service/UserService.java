@@ -6,9 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 import project.atch.domain.user.dto.ItemDetail;
 import project.atch.domain.user.dto.ItemDto;
 import project.atch.domain.user.dto.ResponseCharacterDto;
-import project.atch.domain.user.entity.Block;
+import project.atch.domain.user.entity.*;
 import project.atch.domain.user.entity.Character;
-import project.atch.domain.user.entity.User;
 import project.atch.domain.user.repository.*;
 import project.atch.global.exception.CustomException;
 import project.atch.global.exception.ErrorCode;
@@ -25,6 +24,7 @@ public class UserService {
     private final UserItemRepository userItemRepository;
     private final ItemRepository itemRepository;
     private final BlockRepository blockRepository;
+    private final NoticeRepository noticeRepository;
 
     @Transactional(readOnly = true)
     public List<ResponseCharacterDto> findAllCharacters(){
@@ -42,8 +42,24 @@ public class UserService {
         Character character = characterRepository.findById(characterId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHARACTER_NOT_FOUND));
         user.updateCharacter(character);
+        user.updateChangeCnt();
+
+        grantItemsForCharacter(user); // 아이템 지급
     }
 
+    private void grantItemsForCharacter(User user){
+        Notice notice;
+        switch (user.getChangeCnt()){
+            case 1:
+                createAndSaveNotice(user, ItemNumber.GRAND_ENTRANCE);
+                grantItem(user, ItemNumber.GRAND_ENTRANCE);
+                break;
+            case 5:
+                createAndSaveNotice(user, ItemNumber.ONE_PLUS_ONE);
+                grantItem(user, ItemNumber.ONE_PLUS_ONE);
+                break;
+        }
+    }
 
     @Transactional
     public void updateHashTag(long userId, List<String> hashTag){
@@ -99,5 +115,34 @@ public class UserService {
 
         Block reverseBlock = new Block(blockedId, blockerId);
         blockRepository.save(reverseBlock);
+
+        getItemsForBlocking(blockerId); // 아이템 지급
+    }
+
+    private void getItemsForBlocking(long userId){
+        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_INFORMATION_NOT_FOUND));
+        user.updateBlockCnt();
+
+        switch (user.getBlockCnt()){
+            case 1:
+                createAndSaveNotice(user, ItemNumber.THATS_A_BIT);
+                grantItem(user, ItemNumber.THATS_A_BIT);
+                break;
+            case 3:
+                createAndSaveNotice(user, ItemNumber.BUG_FIX);
+                grantItem(user, ItemNumber.BUG_FIX);
+                break;
+        }
+    }
+
+    private void createAndSaveNotice(User user, ItemNumber itemNumber) {
+        Notice notice = Notice.of(itemNumber, user);
+        noticeRepository.save(notice);
+    }
+
+    private void grantItem(User user, ItemNumber itemNumber) {
+        Item item = itemRepository.findById(itemNumber.getValue()).orElseThrow();
+        UserItem userItem = new UserItem(user, item);
+        userItemRepository.save(userItem);
     }
 }
