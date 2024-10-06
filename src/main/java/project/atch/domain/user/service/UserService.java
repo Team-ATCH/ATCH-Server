@@ -13,6 +13,7 @@ import project.atch.global.exception.CustomException;
 import project.atch.global.exception.ErrorCode;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -100,6 +101,16 @@ public class UserService {
         } else {
             return null; // 만족하지 않는 경우 null을 반환
         }
+    }
+
+    @Transactional
+    public void updateBackground(long userId, long backgroundId){
+        User user = userRepository.findById(userId).orElseThrow();
+        Optional.ofNullable(validateItem(userId, backgroundId))
+                .ifPresentOrElse(
+                        user::updateBackground,
+                        () -> { throw new CustomException(ErrorCode.ITEM_NOT_OWNED); }
+                );
     }
 
     @Transactional
