@@ -102,6 +102,28 @@ public class UserController {
         userService.updateItems(userDetails.getUserId(), dto.itemId1(), dto.itemId2(), dto.itemId3());
     }
 
+    @Operation(summary = "모든 아이템 조회",
+            description = "사용자가 아이템을 선택할 수 있도록 보유 중인 아이템을 조회합니다.")
+    @GetMapping("/background")
+    public List<ItemDetail> getAllBackGrounds(@AuthenticationPrincipal CustomUserDetails userDetails){
+        return userService.getAllBackgrounds(userDetails.getUserId());
+    }
+
+    @Operation(summary = "사용자의 배경 업데이트",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    description = "backgroundId: 배경의 아이디",
+                    content = @Content(
+                            schema = @Schema(implementation = BackgroundReq.class)
+                    )
+            )
+    )
+    @PatchMapping("/background")
+    public void updateBackground(@RequestBody BackgroundReq req,
+                           @AuthenticationPrincipal CustomUserDetails userDetails){
+        userService.updateBackground(userDetails.getUserId(), req.backgroundId());
+    }
+
     @Operation(summary = "사용자의 회원 탈퇴")
     @DeleteMapping()
     public ResponseEntity withdrawal(@AuthenticationPrincipal CustomUserDetails userDetails){

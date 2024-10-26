@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +13,6 @@ import project.atch.domain.festival.FestivalService;
 import project.atch.domain.user.dto.NoticeResponse;
 import project.atch.domain.user.dto.RequestLocationDto;
 import project.atch.domain.user.dto.UserDetailDto;
-import project.atch.domain.user.entity.Notice;
 import project.atch.domain.user.service.HomeService;
 import project.atch.global.security.CustomUserDetails;
 

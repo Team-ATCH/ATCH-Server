@@ -31,6 +31,6 @@ public interface UserItemRepository extends JpaRepository<UserItem, UserItemId> 
 
 
     @Query("SELECT new project.atch.domain.user.dto.ItemDetail(i.id, i.image) " +
-            "FROM UserItem ui JOIN ui.item i WHERE ui.user.id = :userId")
-    List<ItemDetail> findItemIdsAndImagesByUserId(@Param("userId") Long userId);
+            "FROM UserItem ui JOIN ui.item i WHERE ui.user.id = :userId AND i.category = :category")
+    List<ItemDetail> findItemIdsAndImagesByUserId(@Param("userId") Long userId, @Param("category")String category);
 }

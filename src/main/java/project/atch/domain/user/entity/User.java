@@ -52,6 +52,7 @@ public class User extends BaseEntity {
     private Character character;
 
     // 사용자가 착용중인 아이템들 아이디
+    private Long backgroundId;
     private Long itemId1;
     private Long itemId2;
     private Long itemId3;
@@ -103,6 +104,10 @@ public class User extends BaseEntity {
         this.itemId1 = itemId1;
         this.itemId2 = itemId2;
         this.itemId3 = itemId3;
+    }
+
+    public void updateBackground(Long backgroundId){
+        this.backgroundId = backgroundId;
     }
 
     public void updateChatCnt(){

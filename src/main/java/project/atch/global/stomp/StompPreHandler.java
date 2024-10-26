@@ -31,9 +31,11 @@ public class StompPreHandler implements ChannelInterceptor {
 
         switch (accessor.getCommand()){
             case CONNECT:
+                // 클라이언트의 초기 연결 요청을 확인하고, 헤더의 인증 정보를 검토하여 연결을 수락
                 handleConnect(accessor);
                 break;
             case SUBSCRIBE:
+                // 해당 주제나 방을 구독하려는 요청 처리
                 handleSubscribe(accessor);
                 break;
         }

@@ -22,10 +22,10 @@ public class FCMPushRequestDto {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String image;
 
-    public static FCMPushRequestDto makeChatAlarm(String targetToken, String name, String content){
+    public static FCMPushRequestDto makeChatAlarm(String targetToken, String title, String content){
         return FCMPushRequestDto.builder()
                 .targetToken(targetToken)
-                .title(name)
+                .title(title)
                 .body(content)
                 .build();
     }

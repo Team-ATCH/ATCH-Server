@@ -32,11 +32,11 @@ public class RoomController {
     private final RoomUserCountManager countManager;
 
     @Operation(summary = "채팅방 등록",
-            description = "채팅하려는 사용자의 아이디을 받아 새로운 채팅방의 아이디를 생성합니다.")
+            description = "채팅하려는 사용자의 아이디를 받아 새로운 채팅방의 아이디를 생성합니다.")
     @PostMapping
     public ResponseEntity<RoomFormDto.RoomRes> createRoom(@RequestBody @Valid RoomFormDto.RoomReq form,
                                                           @AuthenticationPrincipal CustomUserDetails userDetails){
-        // 응답 내려주면 두 사용자는 sub/message/{roomId}로 구독 시작해야함
+        // 응답 내려주면 요청한 사용자는 sub/message/{roomId}로 구독 시작해야함
         return roomService.createRoom(userDetails.getUserId(), form.userId());
     }
 

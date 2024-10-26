@@ -2,6 +2,7 @@ package project.atch.domain.user.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import project.atch.domain.user.entity.ItemCategory;
 
 @Getter
 public class ItemDetail {
