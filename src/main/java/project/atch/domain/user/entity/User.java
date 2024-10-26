@@ -76,13 +76,6 @@ public class User extends BaseEntity {
         this.role = Role.ROLE_USER;
     }
 
-    public static User fromKakao(String nickname, String email){
-        return User.builder()
-                .oAuthProvider(OAuthProvider.KAKAO)
-                .nickname(nickname)
-                .email(email).build();
-    }
-
     public void updateNickname(String nickname){
         this.nickname = nickname;
     }

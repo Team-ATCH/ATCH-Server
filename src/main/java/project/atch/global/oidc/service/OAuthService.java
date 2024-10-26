@@ -5,11 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import project.atch.domain.notice.entity.Notice;
+import project.atch.domain.notice.service.NoticeService;
 import project.atch.domain.user.entity.*;
-import project.atch.domain.user.repository.ItemRepository;
-import project.atch.domain.notice.repository.NoticeRepository;
-import project.atch.domain.user.repository.UserItemRepository;
 import project.atch.domain.user.repository.UserRepository;
 import project.atch.global.exception.CustomException;
 import project.atch.global.exception.ErrorCode;
@@ -35,58 +32,59 @@ public class OAuthService {
     private final JwtTokenProvider tokenProvider;
 
     private final UserRepository userRepository;
-    private final NoticeRepository noticeRepository;
-    private final ItemRepository itemRepository;
-    private final UserItemRepository userItemRepository;
 
+    private final NoticeService noticeService;
+
+    @Transactional
     public ResponseEntity socialLogin(OAuthProvider provider, String request) {
-        KakaoTokenResponse token = getKakaoOauthToken(provider, request); // TODO 애플의 IdToken 받는 로직 추후 구현
-        OIDCDecodePayload oidcDecodePayload = getOIDCDecodePayload(provider, token.getIdToken());
+        OIDCDecodePayload oidcDecodePayload;
+        if(provider == KAKAO){
+            // 카카오는 id token 받아오는 로직 백엔드에서 수행
+            KakaoTokenResponse token = getKakaoOauthToken(provider, request);
+            oidcDecodePayload = getOIDCDecodePayload(provider, token.getIdToken());
+        } else {
+            oidcDecodePayload = getOIDCDecodePayload(provider, request);
+        }
 
         Optional<User> existing = userRepository.findByEmail(oidcDecodePayload.getEmail());
 
-
+        User user;
         if (existing.isPresent()) {
-            User user = existing.get();
+            user = existing.get();
             String accessToken = tokenProvider.createAccessToken(user.getEmail(), user.getRole().toString());
             SocialLoginResponse socialLoginResponse = toSocialLoginResponse(accessToken);
             return new ResponseEntity<>(socialLoginResponse, HttpStatus.OK);
+        } else {
+            user = register(provider, oidcDecodePayload);
         }
 
-        User user = User.fromKakao(oidcDecodePayload.getNickname(), oidcDecodePayload.getEmail());
-        userRepository.save(user);
         String accessToken = tokenProvider.createAccessToken(user.getEmail(), user.getRole().toString());
         SocialLoginResponse socialLoginResponse = toSocialLoginResponse(accessToken);
-
         grantItemsForWelcome(user);
+
         return new ResponseEntity<>(socialLoginResponse, HttpStatus.CREATED);
+    }
+
+    private User register(OAuthProvider provider, OIDCDecodePayload oidcDecodePayload) {
+        User user = User.builder()
+                .oAuthProvider(provider)
+                .email(oidcDecodePayload.getEmail())
+                .nickname(oidcDecodePayload.getNickname())
+                .build();
+        return userRepository.save(user);
     }
 
     private void grantItemsForWelcome(User user) {
         if (user.getId() % 2 != 0) {
-            createAndSaveNotice(user, ItemName.LOVELY);
-            grantItem(user, ItemName.LOVELY);
+            noticeService.createItemNotice(user, ItemName.LOVELY);
         } else {
-            createAndSaveNotice(user, ItemName.ONLINE);
-            grantItem(user, ItemName.ONLINE);
+            noticeService.createItemNotice(user, ItemName.ONLINE);
         }
 
-        createAndSaveNotice(user, ItemName.PARTY_POPPERS);
-        grantItem(user, ItemName.PARTY_POPPERS);
+        noticeService.createItemNotice(user, ItemName.PARTY_POPPERS);
     }
 
-    private void createAndSaveNotice(User user, ItemName itemName) {
-        Notice notice = Notice.of(itemName, user);
-        noticeRepository.save(notice);
-    }
-
-    private void grantItem(User user, ItemName itemName) {
-        Item item = itemRepository.findById(itemName.getValue()).orElseThrow();
-        UserItem userItem = new UserItem(user, item);
-        userItemRepository.save(userItem);
-    }
-
-
+    // 인가코드로 카카오 id token 받아오기
     private KakaoTokenResponse getKakaoOauthToken(OAuthProvider provider, String code) {
         try {
             return kakaoOauthClient.kakaoAuth(
@@ -99,8 +97,7 @@ public class OAuthService {
         }
     }
 
-    
-
+    // id token 복호화하기
     private OIDCDecodePayload getOIDCDecodePayload(OAuthProvider provider, String idToken) {
         OIDCPublicKeysResponse oidcPublicKeysResponse;
 
