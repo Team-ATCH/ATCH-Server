@@ -1,8 +1,8 @@
-package project.atch.domain.user.repository;
+package project.atch.domain.notice.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import project.atch.domain.user.entity.Notice;
+import project.atch.domain.notice.entity.Notice;
 import project.atch.domain.user.entity.User;
 
 import java.util.List;
