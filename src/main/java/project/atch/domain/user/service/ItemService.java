@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import project.atch.domain.user.entity.ItemNumber;
+import project.atch.domain.user.entity.ItemName;
 import project.atch.domain.user.entity.User;
 import project.atch.domain.user.entity.UserItem;
 import project.atch.domain.user.repository.ItemRepository;
@@ -16,6 +16,10 @@ import project.atch.global.fcm.FCMService;
 
 import java.io.IOException;
 
+/**
+ * 알림용 itemSerivce
+ * 지금 사용 안함
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -30,18 +34,18 @@ public class ItemService {
         String itemName;
         if (user.getId() % 2 == 0){
             UserItem userItem = UserItem.builder()
-                    .item(itemRepository.findById(ItemNumber.ONLINE.getValue()).get())
+                    .item(itemRepository.findById(ItemName.ONLINE.getValue()).get())
                     .user(user)
                     .build();
             userItemRepository.save(userItem);
-            itemName = ItemNumber.ONLINE.getName();
+            itemName = ItemName.ONLINE.getName();
         } else {
             UserItem userItem = UserItem.builder()
-                    .item(itemRepository.findById(ItemNumber.LOVELY.getValue()).get())
+                    .item(itemRepository.findById(ItemName.LOVELY.getValue()).get())
                     .user(user)
                     .build();
             userItemRepository.save(userItem);
-            itemName = ItemNumber.LOVELY.getName();
+            itemName = ItemName.LOVELY.getName();
         }
 
         FCMPushRequestDto dto = FCMPushRequestDto.makeItemAlarm(user.getFcmToken(), itemName, itemName + "이 도착했습니다!");
@@ -52,7 +56,7 @@ public class ItemService {
         }
     }
 
-    public void giveItem(User user, ItemNumber itemNumber){
+    public void giveItem(User user, ItemName itemNumber){
         UserItem userItem = UserItem.builder()
                 .item(itemRepository.findById(itemNumber.getValue()).get())
                 .user(user)

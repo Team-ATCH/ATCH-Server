@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import project.atch.domain.notice.service.NoticeService;
 import project.atch.domain.room.dto.MyMessagePreviewDto;
 import project.atch.domain.room.dto.OtherMessagePreviewDto;
 import project.atch.domain.chat.entity.Chat;
@@ -29,12 +30,11 @@ import java.util.*;
 public class RoomService {
 
     private final UserRepository userRepository;
-    private final ItemRepository itemRepository;
-    private final UserItemRepository userItemRepository;
     private final RoomRepository roomRepository;
     private final ChatRepository chatRepository;
     private final BlockRepository blockRepository;
-    private final NoticeRepository noticeRepository;
+
+    private final NoticeService noticeService;
 
     // 채팅방 생성
     @Transactional
@@ -73,25 +73,12 @@ public class RoomService {
 
         switch (cnt){
             case 5:
-                createAndSaveNotice(user, ItemNumber.CHATTERBOX);
-                grantItem(user, ItemNumber.CHATTERBOX);
+                noticeService.createItemNotice(user, ItemName.CHATTERBOX);
                 break;
             case 10:
-                createAndSaveNotice(user, ItemNumber.SOCIAL_BUTTERFLY);
-                grantItem(user, ItemNumber.SOCIAL_BUTTERFLY);
+                noticeService.createItemNotice(user, ItemName.SOCIAL_BUTTERFLY);
                 break;
         }
-    }
-
-    private void createAndSaveNotice(User user, ItemNumber itemNumber) {
-        Notice notice = Notice.of(itemNumber, user);
-        noticeRepository.save(notice);
-    }
-
-    private void grantItem(User user, ItemNumber itemNumber) {
-        Item item = itemRepository.findById(itemNumber.getValue()).orElseThrow();
-        UserItem userItem = new UserItem(user, item);
-        userItemRepository.save(userItem);
     }
 
     private Room createAndSaveRoom(Long fromId, Long toId) {

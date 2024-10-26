@@ -3,6 +3,9 @@ package project.atch.domain.user.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import project.atch.domain.notice.entity.Notice;
+import project.atch.domain.notice.repository.NoticeRepository;
+import project.atch.domain.notice.service.NoticeService;
 import project.atch.domain.user.dto.ItemDetail;
 import project.atch.domain.user.dto.ItemDto;
 import project.atch.domain.user.dto.ResponseCharacterDto;
@@ -25,7 +28,8 @@ public class UserService {
     private final UserItemRepository userItemRepository;
     private final ItemRepository itemRepository;
     private final BlockRepository blockRepository;
-    private final NoticeRepository noticeRepository;
+
+    private final NoticeService noticeService;
 
     @Transactional(readOnly = true)
     public List<ResponseCharacterDto> findAllCharacters(){
@@ -49,15 +53,12 @@ public class UserService {
     }
 
     private void grantItemsForCharacter(User user){
-        Notice notice;
         switch (user.getChangeCnt()){
             case 1:
-                createAndSaveNotice(user, ItemNumber.GRAND_ENTRANCE);
-                grantItem(user, ItemNumber.GRAND_ENTRANCE);
+                noticeService.createItemNotice(user, ItemName.GRAND_ENTRANCE);
                 break;
             case 5:
-                createAndSaveNotice(user, ItemNumber.ONE_PLUS_ONE);
-                grantItem(user, ItemNumber.ONE_PLUS_ONE);
+                noticeService.createItemNotice(user, ItemName.ONE_PLUS_ONE);
                 break;
         }
     }
@@ -77,9 +78,14 @@ public class UserService {
     @Transactional(readOnly = true)
     public ItemDto.ItemRes getAllItems(long userId){
         User user = userRepository.findById(userId).orElseThrow();
-        List<ItemDetail> items = userItemRepository.findItemIdsAndImagesByUserId(userId);
+        List<ItemDetail> items = userItemRepository.findItemIdsAndImagesByUserId(userId, ItemCategory.ITEM.toString());
 
         return new ItemDto.ItemRes(user.getCharacter(), items);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ItemDetail> getAllBackgrounds(long userId){
+        return userItemRepository.findItemIdsAndImagesByUserId(userId , ItemCategory.BACKGROUND.toString());
     }
 
     @Transactional
@@ -113,12 +119,21 @@ public class UserService {
                 );
     }
 
+    /**
+     * 사용자 탈퇴
+     * @param userId 사용자 id
+     */
     @Transactional
     public void withdrawal(Long userId) {
         userItemRepository.deleteByUserId(userId);
         userRepository.deleteById(userId);
     }
 
+    /**
+     * 사용자 차단
+     * @param blockerId 차단을 요청하는 사용자
+     * @param blockedId 차단 당하는 사용자
+     */
     @Transactional
     public void blockUser(Long blockerId, long blockedId) {
         Block block = new Block(blockerId, blockedId);
@@ -136,24 +151,12 @@ public class UserService {
 
         switch (user.getBlockCnt()){
             case 1:
-                createAndSaveNotice(user, ItemNumber.THATS_A_BIT);
-                grantItem(user, ItemNumber.THATS_A_BIT);
+                noticeService.createItemNotice(user, ItemName.THATS_A_BIT);
                 break;
             case 3:
-                createAndSaveNotice(user, ItemNumber.BUG_FIX);
-                grantItem(user, ItemNumber.BUG_FIX);
+                noticeService.createItemNotice(user, ItemName.BUG_FIX);
                 break;
         }
     }
 
-    private void createAndSaveNotice(User user, ItemNumber itemNumber) {
-        Notice notice = Notice.of(itemNumber, user);
-        noticeRepository.save(notice);
-    }
-
-    private void grantItem(User user, ItemNumber itemNumber) {
-        Item item = itemRepository.findById(itemNumber.getValue()).orElseThrow();
-        UserItem userItem = new UserItem(user, item);
-        userItemRepository.save(userItem);
-    }
 }

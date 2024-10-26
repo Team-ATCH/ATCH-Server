@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class RoomUserCountManager {
 
+    // roomId, 사용자 수 담는 map
     private final ConcurrentHashMap<Long, Integer> roomUserCountMap = new ConcurrentHashMap<>();
 
     // 사용자 수 증가

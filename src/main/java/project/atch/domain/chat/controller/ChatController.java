@@ -42,7 +42,7 @@ public class ChatController {
         if (sessionAttributes == null) {
             throw new CustomException(ErrorCode.USER_NOT_FOUND_IN_SESSION);
         }
-        Long userId = (Long) sessionAttributes.get("userId");
+        Long userId = (Long) sessionAttributes.get("userId"); // 송신자 Id
 
         return chatService.handleMessage(roomId, chat.content(), userId)
                 .map(savedChat -> ResponseEntity.ok().build());

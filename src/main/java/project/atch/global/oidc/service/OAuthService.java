@@ -5,9 +5,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import project.atch.domain.notice.entity.Notice;
 import project.atch.domain.user.entity.*;
 import project.atch.domain.user.repository.ItemRepository;
-import project.atch.domain.user.repository.NoticeRepository;
+import project.atch.domain.notice.repository.NoticeRepository;
 import project.atch.domain.user.repository.UserItemRepository;
 import project.atch.domain.user.repository.UserRepository;
 import project.atch.global.exception.CustomException;
@@ -63,24 +64,24 @@ public class OAuthService {
 
     private void grantItemsForWelcome(User user) {
         if (user.getId() % 2 != 0) {
-            createAndSaveNotice(user, ItemNumber.LOVELY);
-            grantItem(user, ItemNumber.LOVELY);
+            createAndSaveNotice(user, ItemName.LOVELY);
+            grantItem(user, ItemName.LOVELY);
         } else {
-            createAndSaveNotice(user, ItemNumber.ONLINE);
-            grantItem(user, ItemNumber.ONLINE);
+            createAndSaveNotice(user, ItemName.ONLINE);
+            grantItem(user, ItemName.ONLINE);
         }
 
-        createAndSaveNotice(user, ItemNumber.PARTY_POPPERS);
-        grantItem(user, ItemNumber.PARTY_POPPERS);
+        createAndSaveNotice(user, ItemName.PARTY_POPPERS);
+        grantItem(user, ItemName.PARTY_POPPERS);
     }
 
-    private void createAndSaveNotice(User user, ItemNumber itemNumber) {
-        Notice notice = Notice.of(itemNumber, user);
+    private void createAndSaveNotice(User user, ItemName itemName) {
+        Notice notice = Notice.of(itemName, user);
         noticeRepository.save(notice);
     }
 
-    private void grantItem(User user, ItemNumber itemNumber) {
-        Item item = itemRepository.findById(itemNumber.getValue()).orElseThrow();
+    private void grantItem(User user, ItemName itemName) {
+        Item item = itemRepository.findById(itemName.getValue()).orElseThrow();
         UserItem userItem = new UserItem(user, item);
         userItemRepository.save(userItem);
     }
