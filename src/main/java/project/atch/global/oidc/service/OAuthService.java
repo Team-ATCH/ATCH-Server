@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.atch.domain.notice.entity.Notice;
+import project.atch.domain.notice.service.NoticeService;
 import project.atch.domain.user.entity.*;
 import project.atch.domain.user.repository.ItemRepository;
 import project.atch.domain.notice.repository.NoticeRepository;
@@ -35,12 +36,10 @@ public class OAuthService {
     private final JwtTokenProvider tokenProvider;
 
     private final UserRepository userRepository;
-    private final NoticeRepository noticeRepository;
-    private final ItemRepository itemRepository;
-    private final UserItemRepository userItemRepository;
+
+    private final NoticeService noticeService;
 
     public ResponseEntity socialLogin(OAuthProvider provider, String request) {
-//        KakaoTokenResponse token = getKakaoOauthToken(provider, request); // TODO 애플의 IdToken 받는 로직 추후 구현
         OIDCDecodePayload oidcDecodePayload = getOIDCDecodePayload(provider, request);
 
         Optional<User> existing = userRepository.findByEmail(oidcDecodePayload.getEmail());
@@ -53,8 +52,12 @@ public class OAuthService {
             return new ResponseEntity<>(socialLoginResponse, HttpStatus.OK);
         }
 
-        User user = User.fromKakao(oidcDecodePayload.getNickname(), oidcDecodePayload.getEmail());
+        User user = User.builder()
+                .email(oidcDecodePayload.getEmail())
+                .nickname(oidcDecodePayload.getNickname())
+                .oAuthProvider(provider).build();
         userRepository.save(user);
+
         String accessToken = tokenProvider.createAccessToken(user.getEmail(), user.getRole().toString());
         SocialLoginResponse socialLoginResponse = toSocialLoginResponse(accessToken);
 
@@ -64,42 +67,29 @@ public class OAuthService {
 
     private void grantItemsForWelcome(User user) {
         if (user.getId() % 2 != 0) {
-            createAndSaveNotice(user, ItemName.LOVELY);
-            grantItem(user, ItemName.LOVELY);
+            noticeService.createItemNotice(user, ItemName.LOVELY);
         } else {
-            createAndSaveNotice(user, ItemName.ONLINE);
-            grantItem(user, ItemName.ONLINE);
+            noticeService.createItemNotice(user, ItemName.ONLINE);
         }
 
-        createAndSaveNotice(user, ItemName.PARTY_POPPERS);
-        grantItem(user, ItemName.PARTY_POPPERS);
+        noticeService.createItemNotice(user, ItemName.PARTY_POPPERS);
     }
 
-    private void createAndSaveNotice(User user, ItemName itemName) {
-        Notice notice = Notice.of(itemName, user);
-        noticeRepository.save(notice);
-    }
-
-    private void grantItem(User user, ItemName itemName) {
-        Item item = itemRepository.findById(itemName.getValue()).orElseThrow();
-        UserItem userItem = new UserItem(user, item);
-        userItemRepository.save(userItem);
-    }
-
-
-    private KakaoTokenResponse getKakaoOauthToken(OAuthProvider provider, String code) {
+    // 백엔드 테스트용(인가 코드로 id token 얻기)
+    public String getKakaoOauthToken(String code) {
         try {
-            return kakaoOauthClient.kakaoAuth(
+            OAuthProvider provider = KAKAO;
+            KakaoTokenResponse kakaoTokenResponse = kakaoOauthClient.kakaoAuth(
                     oauthProperties.getClientId(provider),
                     oauthProperties.getRedirectUrl(provider),
                     code,
                     oauthProperties.getClientSecret(provider));
+
+            return kakaoTokenResponse.getIdToken();
         } catch (Exception ex) {
             throw new CustomException(ErrorCode.REQUEST_VALIDATION_EXCEPTION);
         }
     }
-
-    
 
     private OIDCDecodePayload getOIDCDecodePayload(OAuthProvider provider, String idToken) {
         OIDCPublicKeysResponse oidcPublicKeysResponse;
@@ -123,8 +113,5 @@ public class OAuthService {
         return SocialLoginResponse.builder()
                 .accessToken(accessToken).build(); // TODO refreshToken 생성
     }
-
-
-
 
 }

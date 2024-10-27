@@ -27,8 +27,8 @@ public class JwtOIDCService {
     private Jwt<Header, Claims> getUnsignedTokenClaims(String token, String iss, String aud) {
         try {
             return Jwts.parserBuilder()
-                    .requireAudience(aud) //aud(카카오톡 어플리케이션 아이디)가 같은지 확인
-                    .requireIssuer(iss) //iss(이슈어)가 카카오인지 확인
+                    .requireAudience(aud) //aud(app key)가 같은지 확인
+                    .requireIssuer(iss) //iss(base url)가 같은지 확인
                     .build()
                     .parseClaimsJwt(getUnsignedToken(token));
         } catch (ExpiredJwtException e) {

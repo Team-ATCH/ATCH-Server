@@ -24,6 +24,10 @@ public class OAuthController {
             @RequestBody OAuthCodeReqeust request) {
 
         return oAuthService.socialLogin(provider, request.getCode());
+    }
 
+    @PostMapping("/idToken")
+    public String getKakaoIdToken(@RequestBody OAuthCodeReqeust request){
+        return oAuthService.getKakaoOauthToken(request.getCode());
     }
 }

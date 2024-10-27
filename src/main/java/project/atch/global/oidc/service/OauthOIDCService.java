@@ -18,7 +18,7 @@ public class OauthOIDCService {
 
     public OIDCDecodePayload getPayloadFromIdToken(
             String token, String iss, String aud, OIDCPublicKeysResponse oidcPublicKeysResponse) {
-        String kid = getKidFromUnsignedIdToken(token, iss, aud);
+        String kid = getKidFromUnsignedIdToken(token, iss, aud); // iss: base url, aud: app key
 
         OIDCPublicKeyDto oidcPublicKeyDto =
                 oidcPublicKeysResponse.getKeys().stream()
