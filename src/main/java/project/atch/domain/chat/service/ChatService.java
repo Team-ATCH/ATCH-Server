@@ -12,19 +12,13 @@ import org.springframework.transaction.annotation.Transactional;
 import project.atch.domain.chat.dto.MessageDto;
 import project.atch.domain.chat.entity.Chat;
 import project.atch.domain.chat.repository.ChatRepository;
-import project.atch.domain.notice.entity.Notice;
 import project.atch.domain.notice.service.NoticeService;
 import project.atch.domain.room.entity.Room;
 import project.atch.domain.room.repository.RoomRepository;
 import project.atch.domain.user.entity.*;
-import project.atch.domain.user.repository.ItemRepository;
-import project.atch.domain.notice.repository.NoticeRepository;
-import project.atch.domain.user.repository.UserItemRepository;
 import project.atch.domain.user.repository.UserRepository;
 import project.atch.global.exception.CustomException;
 import project.atch.global.exception.ErrorCode;
-import project.atch.global.fcm.FCMPushRequestDto;
-import project.atch.global.fcm.FCMService;
 import project.atch.global.stomp.RoomUserCountManager;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -40,10 +34,8 @@ public class ChatService {
     private final ChatRepository chatRepository;
     private final RoomRepository roomRepository;
     private final UserRepository userRepository;
-    private final RoomUserCountManager countManager;
     private final SimpMessageSendingOperations template;
 
-    private final FCMService fcmService;
     private final NoticeService noticeService;
 
     @Transactional
@@ -51,23 +43,7 @@ public class ChatService {
         return validateRoom(roomId, userId)
                 .flatMap(room -> saveChatMessage(roomId, content, userId))
                 .flatMap(savedChat -> {
-                    int userCount = countManager.getUserCount(roomId);
-
-                    // 사용자 인원에 따른 처리 분기
-                    if (userCount == 2) {
-                        // 사용자 인원이 2명인 경우 웹소켓으로 메시지 실시간 전송
-                        sendMessageToSubscribers(roomId, savedChat);
-                    } else if (userCount == 1) {
-                        // 사용자 인원이 1명인 경우 FCM 알람 전송
-                        long toUserId = getAntherId(roomId, userId);
-                        User toUser = userRepository.findById(toUserId).orElseThrow(() -> new CustomException(ErrorCode.USER_INFORMATION_NOT_FOUND));
-                        FCMPushRequestDto dto = FCMPushRequestDto.makeChatAlarm(toUser.getFcmToken(), "메세지가 도착했습니다.", savedChat.getContent());
-                        try {
-                            fcmService.pushAlarm(dto);
-                        } catch (IOException e) {
-                            return Mono.error(new CustomException(ErrorCode.FCM_SERVER_COMMUNICATION_FAILED));
-                        }
-                    }
+                    sendMessageToSubscribers(roomId, savedChat);
                     grantItemsForChat(userId);
 
                     return Mono.empty();
@@ -76,10 +52,8 @@ public class ChatService {
 
     @Transactional
     public Mono<Chat> saveChatMessage(Long roomId, String content, Long fromUserId) {
-        boolean read = countManager.getUserCount(roomId) == 2;
-
         return chatRepository.save(
-                new Chat(roomId, content, fromUserId, new Date(), read));
+                new Chat(roomId, content, fromUserId, new Date(), true));
     }
 
     private void sendMessageToSubscribers(Long roomId, Chat savedChat) {
