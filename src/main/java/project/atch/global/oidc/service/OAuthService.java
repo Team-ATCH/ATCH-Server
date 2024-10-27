@@ -40,8 +40,8 @@ public class OAuthService {
     private final UserItemRepository userItemRepository;
 
     public ResponseEntity socialLogin(OAuthProvider provider, String request) {
-        KakaoTokenResponse token = getKakaoOauthToken(provider, request); // TODO 애플의 IdToken 받는 로직 추후 구현
-        OIDCDecodePayload oidcDecodePayload = getOIDCDecodePayload(provider, token.getIdToken());
+//        KakaoTokenResponse token = getKakaoOauthToken(provider, request); // TODO 애플의 IdToken 받는 로직 추후 구현
+        OIDCDecodePayload oidcDecodePayload = getOIDCDecodePayload(provider, request);
 
         Optional<User> existing = userRepository.findByEmail(oidcDecodePayload.getEmail());
 
