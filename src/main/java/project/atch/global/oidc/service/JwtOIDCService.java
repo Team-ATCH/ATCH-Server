@@ -1,5 +1,6 @@
 package project.atch.global.oidc.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -53,6 +54,10 @@ public class JwtOIDCService {
     // 공개키로 토큰 바디를 디코드한다.
     public OIDCDecodePayload getOIDCTokenBody(String token, String modulus, String exponent) {
         Claims body = getOIDCTokenJws(token, modulus, exponent).getBody();
+
+        // Claims를 JSON 형식으로 로그 출력
+        logClaimsAsJson(body);
+
         return new OIDCDecodePayload(
                 body.getIssuer(),
                 body.getAudience(),
@@ -73,6 +78,17 @@ public class JwtOIDCService {
         } catch (Exception e) {
             log.error(e.toString());
             throw new CustomException(ErrorCode.REQUEST_VALIDATION_EXCEPTION);
+        }
+    }
+
+    // Claims 객체를 JSON 형식으로 로그 출력하는 메서드
+    private void logClaimsAsJson(Claims claims) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonClaims = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(claims);
+            log.info("Decoded Token Body: {}", jsonClaims);
+        } catch (Exception e) {
+            log.error("Failed to convert Claims to JSON", e);
         }
     }
 

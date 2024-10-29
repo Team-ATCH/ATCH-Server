@@ -51,9 +51,13 @@ public class OAuthService {
             return new ResponseEntity<>(socialLoginResponse, HttpStatus.OK);
         }
 
+        String nickname = oidcDecodePayload.getNickname();
+        if (nickname == null){
+            nickname = oidcDecodePayload.getEmail();
+        }
         User user = User.builder()
                 .email(oidcDecodePayload.getEmail())
-                .nickname(oidcDecodePayload.getNickname())
+                .nickname(nickname)
                 .oAuthProvider(provider).build();
         userRepository.save(user);
 
