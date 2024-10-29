@@ -7,6 +7,7 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.stereotype.Component;
+import project.atch.domain.user.entity.OAuthProvider;
 import project.atch.domain.user.entity.User;
 import project.atch.domain.user.repository.UserRepository;
 import project.atch.global.jwt.JwtTokenProvider;
@@ -33,25 +34,27 @@ public class StompPreHandler implements ChannelInterceptor {
     }
 
     private void handleConnect(StompHeaderAccessor accessor) {
-        String email = getEmail(accessor);
-        if (email != null) {
-            User user = userRepository.findByEmail(email).orElseThrow();
+        User user = getUser(accessor);
+        if (user != null){
             setSessionAttributes(accessor, user.getId(), user.getNickname());
             log.info("[StompPreHandler-preSend] connect: " + user.getId());
         }
     }
 
-    private String getEmail(StompHeaderAccessor accessor){
-        String email = null;
+    private User getUser(StompHeaderAccessor accessor){
+        User user = null;
         String jwtToken = accessor.getFirstNativeHeader("Authorization");
         if (jwtToken != null && jwtToken.startsWith("Bearer")) {
             String token = jwtToken.substring(7);
             if (jwtTokenProvider.validateToken(token)) {
-                email = jwtTokenProvider.getUserEmail(token);
+                String email = jwtTokenProvider.getUserEmail(token);
+                String provider = jwtTokenProvider.getOAuthProvider(token);
+
+                user = userRepository.findByEmailAndOAuthProvider(email, OAuthProvider.valueOf(provider)).orElseThrow();
             }
         }
 
-        return email;
+        return user;
     }
 
     private void setSessionAttributes(StompHeaderAccessor accessor, Long userId, String nickname) {

@@ -13,6 +13,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import project.atch.domain.user.entity.OAuthProvider;
 import project.atch.global.security.CustomUserDetailService;
 
 import java.security.Key;
@@ -35,8 +36,9 @@ public class JwtTokenProvider implements InitializingBean {
     }
 
     // JWT AccessToken 생성
-    public String createAccessToken(String email, String role) {
+    public String createAccessToken(String email, String role, OAuthProvider provider) {
         Claims claims = Jwts.claims().setSubject(email); // JWT payload 에 저장되는 정보단위
+        claims.put("oauthProvider", provider.toString());
         claims.put("role", role); // 정보는 key/value 쌍으로 저장
         Date now = new Date();
         return Jwts.builder()
@@ -59,12 +61,20 @@ public class JwtTokenProvider implements InitializingBean {
     }
 
     public Authentication getAuthentication(String token) {
-        UserDetails userDetails = customUserDetailsService.loadUserByUsername(getUserEmail(token));
+        String email = getUserEmail(token);
+        String oauthProvider = getOAuthProvider(token);
+
+        UserDetails userDetails = customUserDetailsService.loadUserByEmailAndProvider(email, oauthProvider);
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
     public String getUserEmail(String token) {
         return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
     }
+
+    public String getOAuthProvider(String token) {
+        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().get("oauthProvider", String.class);
+    }
+
 
 }

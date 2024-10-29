@@ -1,5 +1,6 @@
 package project.atch.global.oidc.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ public class OAuthController {
 
     private final OAuthService oAuthService;
 
+    @Operation(summary = "회원가입/ 로그인")
     @PostMapping("/login")
     public ResponseEntity oauthUserCodeLogin(
             @RequestParam(name = "provider") OAuthProvider provider,
@@ -26,6 +28,8 @@ public class OAuthController {
         return oAuthService.socialLogin(provider, request.getCode());
     }
 
+    @Operation(summary = "[BE] 카카오 id token 반환",
+            description = "BE 테스트 용도입니다.")
     @PostMapping("/idToken")
     public String getKakaoIdToken(@RequestBody OAuthCodeReqeust request){
         return oAuthService.getKakaoOauthToken(request.getCode());

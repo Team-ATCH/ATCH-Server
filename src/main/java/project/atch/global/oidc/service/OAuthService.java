@@ -42,12 +42,11 @@ public class OAuthService {
     public ResponseEntity socialLogin(OAuthProvider provider, String request) {
         OIDCDecodePayload oidcDecodePayload = getOIDCDecodePayload(provider, request);
 
-        Optional<User> existing = userRepository.findByEmail(oidcDecodePayload.getEmail());
-
+        Optional<User> existing = userRepository.findByEmailAndOAuthProvider(oidcDecodePayload.getEmail(), provider);
 
         if (existing.isPresent()) {
             User user = existing.get();
-            String accessToken = tokenProvider.createAccessToken(user.getEmail(), user.getRole().toString());
+            String accessToken = tokenProvider.createAccessToken(user.getEmail(), user.getRole().toString(), provider);
             SocialLoginResponse socialLoginResponse = toSocialLoginResponse(accessToken);
             return new ResponseEntity<>(socialLoginResponse, HttpStatus.OK);
         }
@@ -58,7 +57,7 @@ public class OAuthService {
                 .oAuthProvider(provider).build();
         userRepository.save(user);
 
-        String accessToken = tokenProvider.createAccessToken(user.getEmail(), user.getRole().toString());
+        String accessToken = tokenProvider.createAccessToken(user.getEmail(), user.getRole().toString(), provider);
         SocialLoginResponse socialLoginResponse = toSocialLoginResponse(accessToken);
 
         grantItemsForWelcome(user);

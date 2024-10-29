@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import project.atch.domain.user.dto.UserDetailDto;
+import project.atch.domain.user.entity.OAuthProvider;
 import project.atch.domain.user.entity.User;
 
 import java.util.List;
@@ -11,7 +12,10 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findById(Long id);
-    Optional<User> findByEmail(String email);
+
+    @Query("SELECT u FROM User u WHERE u.email = :email AND u.oAuthProvider = :oAuthProvider")
+    Optional<User> findByEmailAndOAuthProvider(@Param("email") String email, @Param("oAuthProvider") OAuthProvider oAuthProvider);
+
 
     @Query("SELECT new project.atch.domain.user.dto.UserDetailDto(u, u.character, i1, i2, i3) " +
             "FROM User u " +
