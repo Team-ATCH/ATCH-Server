@@ -47,7 +47,7 @@ public class OAuthService {
         if (existing.isPresent()) {
             User user = existing.get();
             String accessToken = tokenProvider.createAccessToken(user.getEmail(), user.getRole().toString(), provider);
-            SocialLoginResponse socialLoginResponse = toSocialLoginResponse(accessToken);
+            SocialLoginResponse socialLoginResponse = toSocialLoginResponse(accessToken, false);
             return new ResponseEntity<>(socialLoginResponse, HttpStatus.OK);
         }
 
@@ -62,10 +62,10 @@ public class OAuthService {
         userRepository.save(user);
 
         String accessToken = tokenProvider.createAccessToken(user.getEmail(), user.getRole().toString(), provider);
-        SocialLoginResponse socialLoginResponse = toSocialLoginResponse(accessToken);
+        SocialLoginResponse socialLoginResponse = toSocialLoginResponse(accessToken, true);
 
         grantItemsForWelcome(user);
-        return new ResponseEntity<>(socialLoginResponse, HttpStatus.CREATED);
+        return new ResponseEntity<>(socialLoginResponse, HttpStatus.OK);
     }
 
     private void grantItemsForWelcome(User user) {
@@ -112,9 +112,10 @@ public class OAuthService {
                 oidcPublicKeysResponse);
     }
 
-    private SocialLoginResponse toSocialLoginResponse(String accessToken) {
+    private SocialLoginResponse toSocialLoginResponse(String accessToken, boolean newUser) {
         return SocialLoginResponse.builder()
-                .accessToken(accessToken).build(); // TODO refreshToken 생성
+                .accessToken(accessToken)
+                .newUser(newUser).build();
     }
 
 }

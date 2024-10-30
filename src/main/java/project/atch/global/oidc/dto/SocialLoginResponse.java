@@ -12,6 +12,6 @@ import lombok.Setter;
 public class SocialLoginResponse {
 
     private String accessToken;
-    private String refreshToken;
+    private boolean newUser;
 
 }
