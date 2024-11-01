@@ -125,8 +125,8 @@ public class UserService {
      */
     @Transactional
     public void withdrawal(Long userId) {
-        userItemRepository.deleteByUserId(userId);
-        userRepository.deleteById(userId);
+        noticeService.deleteUserData(userId); // 유저 관련 데이터를 전부 삭제
+        userRepository.deleteById(userId); // 유저 데이터 삭제
     }
 
     /**
