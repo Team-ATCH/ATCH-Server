@@ -92,19 +92,18 @@ public class RoomService {
     @Transactional(readOnly = true)
     public Flux<MyMessagePreviewDto> getAllMyRooms(long userId){
         // 사용자가 속한 roomId 목록을 조회, 차단한 사용자가 속한 roomId는 제외
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_INFORMATION_NOT_FOUND));
         List<Long> blockedId = blockRepository.findBlockedIdsByBlockerId(userId);
-
         List<Room> rooms = roomRepository.findFilteredRooms(userId, blockedId);
-
-        for(Room room: rooms) log.info("{}", room.getId());
 
         // 각 roomId에 해당하는 가장 최신 메시지를 조회
         return Flux.fromIterable(rooms)
                 .flatMap(room -> chatRepository.findTopByRoomIdOrderByCreatedAtDesc(room.getId())
                         .flatMap(chat -> {
-                            return Mono.just(MyMessagePreviewDto.of(chat, user));
+                            Long opponentId = (room.getFromId() == userId) ? room.getToId() : room.getFromId();
+                            User opponent = userRepository.findById(opponentId)
+                                    .orElseThrow(() -> new CustomException(ErrorCode.USER_INFORMATION_NOT_FOUND));
+
+                            return Mono.just(MyMessagePreviewDto.of(chat, opponent));
                         })
                 )
                 // 최신순으로 정렬

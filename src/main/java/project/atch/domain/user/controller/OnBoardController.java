@@ -12,6 +12,7 @@ import project.atch.domain.user.dto.RequestHashTagDto;
 import project.atch.domain.user.dto.RequestNicknameDto;
 import project.atch.domain.user.dto.ResponseCharacterDto;
 import project.atch.domain.user.service.UserService;
+import project.atch.global.dto.SuccessResponse;
 import project.atch.global.exception.CustomException;
 import project.atch.global.exception.ErrorCode;
 import project.atch.global.security.CustomUserDetails;
@@ -29,8 +30,8 @@ public class OnBoardController {
     @Operation(summary = "모든 캐릭터 조회",
             description = "사용자가 캐릭터를 선택할 수 있도록 모든 캐릭터를 조회합니다.")
     @GetMapping("/character")
-    public List<ResponseCharacterDto> getAllCharacters(){
-        return userService.findAllCharacters();
+    public SuccessResponse<List<ResponseCharacterDto>> getAllCharacters(){
+        return SuccessResponse.of(userService.findAllCharacters());
     }
 
     @Operation(summary = "사용자의 캐릭터 업데이트",

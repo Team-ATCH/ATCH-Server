@@ -29,7 +29,7 @@ public class UserController {
     @Operation(summary = "모든 캐릭터 조회",
             description = "사용자가 캐릭터를 선택할 수 있도록 모든 캐릭터를 조회합니다.")
     @GetMapping("/character")
-    public SuccessResponse<Object> getAllCharacters(){
+    public SuccessResponse<List<ResponseCharacterDto>> getAllCharacters(){
         return SuccessResponse.of(userService.findAllCharacters());
     }
 
@@ -106,7 +106,7 @@ public class UserController {
     @Operation(summary = "모든 아이템 조회",
             description = "사용자가 아이템을 선택할 수 있도록 보유 중인 아이템을 조회합니다.")
     @GetMapping("/background")
-    public SuccessResponse<Object> getAllBackGrounds(@AuthenticationPrincipal CustomUserDetails userDetails){
+    public SuccessResponse<List<ItemDetail>> getAllBackGrounds(@AuthenticationPrincipal CustomUserDetails userDetails){
         return SuccessResponse.of(userService.getAllBackgrounds(userDetails.getUserId()));
     }
 

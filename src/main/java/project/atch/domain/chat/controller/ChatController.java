@@ -17,6 +17,7 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.web.bind.annotation.*;
 import project.atch.domain.chat.dto.MessageDto;
 import project.atch.domain.chat.service.ChatService;
+import project.atch.global.dto.SuccessResponse;
 import project.atch.global.exception.CustomException;
 import project.atch.global.exception.ErrorCode;
 import reactor.core.publisher.Flux;
@@ -49,15 +50,14 @@ public class ChatController {
     }
 
     @Operation(summary = "특정 채팅방의 모든 채팅 내용 조회",
-            description = "특정 채팅방의 모든 채팅 메세지를 조회할 수 있습니다.")
+            description = "특정 채팅방의 모든 채팅 메세지를 조회할 수 있습니다. 메세지는 최신순입니다.")
     @Parameters({
             @Parameter(name = "roomId", description = "채팅방 아이디"),
     })
     @GetMapping("/{roomId}")
-    public Mono<ResponseEntity<List<MessageDto.Res>>> find(@PathVariable("roomId") Long id) {
+    public Mono<SuccessResponse<List<MessageDto.Res>>> find(@PathVariable("roomId") Long id) {
         Flux<MessageDto.Res> response = chatService.findAllMessages(id);
-        Mono<ResponseEntity<List<MessageDto.Res>>> map = response.collectList().map(list -> ResponseEntity.ok(list));
-        return map;
+        return response.collectList().map(SuccessResponse::of);
     }
 
 }
