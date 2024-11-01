@@ -14,6 +14,7 @@ import project.atch.domain.user.dto.NoticeResponse;
 import project.atch.domain.user.dto.RequestLocationDto;
 import project.atch.domain.user.dto.UserDetailDto;
 import project.atch.domain.user.service.HomeService;
+import project.atch.global.dto.SuccessResponse;
 import project.atch.global.security.CustomUserDetails;
 
 import java.util.List;
@@ -30,15 +31,15 @@ public class HomeController {
     @Operation(summary = "마포구 내 진행 예정인 축제 조회",
             description = "마포구 내 진행 예정인 모든 축제를 조회합니다.")
     @GetMapping("/festival")
-    public List<FestivalDto> getTodayFestivalDto(){
-        return festivalService.getFestivalData();
+    public SuccessResponse<Object> getTodayFestivalDto(){
+        return SuccessResponse.of(festivalService.getFestivalData());
     }
 
     @Operation(summary = "지도 내 위치하는 모든 사용자 조회",
             description = "현재 홍대 내 위치하는 모든 사용자의 일부 정보를 가져옵니다.")
     @GetMapping()
-    public List<UserDetailDto> getUsersDetail(@AuthenticationPrincipal CustomUserDetails userDetails){
-        return homeService.getUsersDetail(userDetails.getUserId());
+    public SuccessResponse<List<UserDetailDto>> getUsersDetail(@AuthenticationPrincipal CustomUserDetails userDetails){
+        return SuccessResponse.of(homeService.getUsersDetail(userDetails.getUserId()));
     }
 
     @Operation(summary = "사용자의 위치 업데이트",
@@ -59,7 +60,7 @@ public class HomeController {
 
     @Operation(summary = "알람 조회")
     @GetMapping("/notice")
-    public List<NoticeResponse> getNotice(@AuthenticationPrincipal CustomUserDetails userDetails){
-        return homeService.getNotice(userDetails.getUserId());
+    public SuccessResponse<List<NoticeResponse>> getNotice(@AuthenticationPrincipal CustomUserDetails userDetails){
+        return SuccessResponse.of(homeService.getNotice(userDetails.getUserId()));
     }
 }

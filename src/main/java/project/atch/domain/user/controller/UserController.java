@@ -11,6 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import project.atch.domain.user.dto.*;
 import project.atch.domain.user.service.UserService;
+import project.atch.global.dto.SuccessResponse;
 import project.atch.global.exception.CustomException;
 import project.atch.global.exception.ErrorCode;
 import project.atch.global.security.CustomUserDetails;
@@ -28,8 +29,8 @@ public class UserController {
     @Operation(summary = "모든 캐릭터 조회",
             description = "사용자가 캐릭터를 선택할 수 있도록 모든 캐릭터를 조회합니다.")
     @GetMapping("/character")
-    public List<ResponseCharacterDto> getAllCharacters(){
-        return userService.findAllCharacters();
+    public SuccessResponse<List<ResponseCharacterDto>> getAllCharacters(){
+        return SuccessResponse.of(userService.findAllCharacters());
     }
 
     @Operation(summary = "사용자의 캐릭터 업데이트",
@@ -105,8 +106,8 @@ public class UserController {
     @Operation(summary = "모든 아이템 조회",
             description = "사용자가 아이템을 선택할 수 있도록 보유 중인 아이템을 조회합니다.")
     @GetMapping("/background")
-    public List<ItemDetail> getAllBackGrounds(@AuthenticationPrincipal CustomUserDetails userDetails){
-        return userService.getAllBackgrounds(userDetails.getUserId());
+    public SuccessResponse<List<ItemDetail>> getAllBackGrounds(@AuthenticationPrincipal CustomUserDetails userDetails){
+        return SuccessResponse.of(userService.getAllBackgrounds(userDetails.getUserId()));
     }
 
     @Operation(summary = "사용자의 배경 업데이트",
@@ -128,7 +129,7 @@ public class UserController {
     @DeleteMapping()
     public ResponseEntity withdrawal(@AuthenticationPrincipal CustomUserDetails userDetails){
         userService.withdrawal(userDetails.getUserId());
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     @Operation(summary = "특정 사용자를 차단")

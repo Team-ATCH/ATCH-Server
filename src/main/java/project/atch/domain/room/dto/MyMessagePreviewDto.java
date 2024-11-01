@@ -14,15 +14,15 @@ import java.util.List;
 public class MyMessagePreviewDto {
     private Long roomId;
     private String content;
-    private Long fromId;
-    private String fromNickname;
+    private Long opponentId;
+    private String opponentNickname;
     private List<String> hashTag;
     private String image;
     private Date createdAt;
 
-    static public MyMessagePreviewDto of(Chat chat, User user){
-        return new MyMessagePreviewDto(chat.getRoomId(), chat.getContent(), chat.getFromId(), user.getNickname(),
-                Arrays.asList(user.getHashTag().split(",")), user.getCharacter().getImage(), chat.getCreatedAt());
+    static public MyMessagePreviewDto of(Chat chat, User opponent){
+        return new MyMessagePreviewDto(chat.getRoomId(), chat.getContent(), opponent.getId(), opponent.getNickname(),
+                Arrays.asList(opponent.getHashTag().split(",")), opponent.getCharacter().getImage(), chat.getCreatedAt());
     }
 
 }

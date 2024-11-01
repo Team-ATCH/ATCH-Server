@@ -32,4 +32,10 @@ public class NoticeService {
         noticeRepository.save(notice);
     }
 
+    @Transactional
+    public void deleteUserData(long userId){
+        noticeRepository.deleteByUserId(userId);
+        userItemRepository.deleteByUserId(userId);
+    }
+
 }
