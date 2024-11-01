@@ -31,10 +31,10 @@ public class HomeService {
 
         List<Long> blockedId = blockRepository.findBlockedIdsByBlockerId(userId);
 
-        double latMin = 37.548264;
-        double latMax = 37.564515;
-        double lonMin = 126.914907;
-        double lonMax = 126.928451;
+        double lonMin = 37.548264;
+        double lonMax = 37.564515;
+        double latMin = 126.914907;
+        double latMax = 126.928451;
 
         // 사용자 목록 조회
         List<UserDetailDto> users = userRepository.findUsersWithItems(latMin, latMax, lonMin, lonMax);
